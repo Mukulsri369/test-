@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" width="800" height="600">
+  <defs>
+    <radialGradient id="glow-snk" cx="55%" cy="45%" r="60%">
+      <stop offset="0%" stop-color="#c8f3e0" stop-opacity="0.32"/>
+      <stop offset="55%" stop-color="#365b57" stop-opacity="0.16"/>
+      <stop offset="100%" stop-color="#091514" stop-opacity="1"/>
+    </radialGradient>
+    <linearGradient id="sole-grad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#f0fff7"/>
+      <stop offset="50%" stop-color="#c8f3e0"/>
+      <stop offset="100%" stop-color="#75a398"/>
+    </linearGradient>
+    <linearGradient id="upper-grad" x1="20%" y1="0%" x2="80%" y2="100%">
+      <stop offset="0%" stop-color="#2c4441"/>
+      <stop offset="100%" stop-color="#0d1817"/>
+    </linearGradient>
+  </defs>
+  <rect width="800" height="600" fill="#091514"/>
+  <rect width="800" height="600" fill="url(#glow-snk)"/>
+  <g stroke="#c8f3e0" stroke-opacity="0.12" stroke-width="1" fill="none">
+    <ellipse cx="420" cy="360" rx="290" ry="90" transform="rotate(-8 420 360)"/>
+    <ellipse cx="420" cy="360" rx="220" ry="64" transform="rotate(-8 420 360)"/>
+    <line x1="90" y1="450" x2="710" y2="450" stroke-opacity="0.22"/>
+  </g>
+  <g transform="translate(150, 175)">
+    <path d="M40,225 C120,235 380,238 495,212 C515,206 520,182 495,172 C410,164 150,168 55,175 C28,178 22,220 40,225 Z" fill="url(#sole-grad)" opacity="0.95"/>
+    <path d="M65,175 C95,95 165,55 240,68 C295,78 365,128 465,155 C488,162 495,172 480,175 Z" fill="url(#upper-grad)" stroke="#c8f3e0" stroke-opacity="0.55" stroke-width="2"/>
+    <path d="M215,78 L275,98 M240,92 L298,112 M265,106 L320,125 M290,120 L342,138" stroke="#f0fff7" stroke-width="3.5" stroke-linecap="round"/>
+    <circle cx="145" cy="145" r="24" fill="none" stroke="#c8f3e0" stroke-opacity="0.45" stroke-width="1.5"/>
+  </g>
+  <text x="48" y="64" fill="#c8f3e0" font-family="ui-sans-serif, system-ui, sans-serif" font-size="12" letter-spacing="4" opacity="0.8">FOOTWEAR LAB · CONCEPT STUDY 01</text>
+  <text x="48" y="548" fill="#f0fff7" font-family="Georgia, serif" font-style="italic" font-size="22" opacity="0.85">Aether Carbon Runner — Studio Silhouette</text>
+</svg>

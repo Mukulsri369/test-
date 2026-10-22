@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" width="800" height="600">
+  <defs>
+    <radialGradient id="glow-pk" cx="50%" cy="48%" r="58%">
+      <stop offset="0%" stop-color="#d4e6aa" stop-opacity="0.28"/>
+      <stop offset="55%" stop-color="#63794d" stop-opacity="0.16"/>
+      <stop offset="100%" stop-color="#151d13" stop-opacity="1"/>
+    </radialGradient>
+  </defs>
+  <rect width="800" height="600" fill="#151d13"/>
+  <rect width="800" height="600" fill="url(#glow-pk)"/>
+  <g transform="translate(400, 295)" fill="none">
+    <path d="M-45,-145 C-45,-185 45,-185 45,-145" stroke="#d4e6aa" stroke-width="6" stroke-linecap="round"/>
+    <rect x="-115" y="-140" width="230" height="275" rx="28" fill="#1f2b1c" stroke="#d4e6aa" stroke-width="3"/>
+    <rect x="-90" y="10" width="180" height="95" rx="14" fill="#263d38" stroke="#d4e6aa" stroke-opacity="0.65" stroke-width="2"/>
+    <line x1="-65" y1="-140" x2="-65" y2="135" stroke="#d4e6aa" stroke-opacity="0.35" stroke-width="4"/>
+    <line x1="65" y1="-140" x2="65" y2="135" stroke="#d4e6aa" stroke-opacity="0.35" stroke-width="4"/>
+  </g>
+  <text x="48" y="64" fill="#d4e6aa" font-family="ui-sans-serif, system-ui, sans-serif" font-size="12" letter-spacing="4" opacity="0.8">NOMAD ACCESSORIES · CONCEPT STUDY 06</text>
+  <text x="48" y="548" fill="#f2f7e9" font-family="Georgia, serif" font-style="italic" font-size="22" opacity="0.85">Nomad Architectural Weekender Pack — Form Study</text>
+</svg>

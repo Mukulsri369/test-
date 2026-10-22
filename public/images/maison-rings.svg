@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" width="800" height="600">
+  <defs>
+    <radialGradient id="glow-rg" cx="50%" cy="48%" r="58%">
+      <stop offset="0%" stop-color="#edd6ad" stop-opacity="0.35"/>
+      <stop offset="55%" stop-color="#ab8a70" stop-opacity="0.16"/>
+      <stop offset="100%" stop-color="#141214" stop-opacity="1"/>
+    </radialGradient>
+  </defs>
+  <rect width="800" height="600" fill="#141214"/>
+  <rect width="800" height="600" fill="url(#glow-rg)"/>
+  <g transform="translate(400, 305)" fill="none">
+    <ellipse cx="-35" cy="10" rx="115" ry="78" transform="rotate(-22 -35 10)" stroke="#edd6ad" stroke-width="8" opacity="0.88"/>
+    <ellipse cx="30" cy="-8" rx="115" ry="78" transform="rotate(18 30 -8)" stroke="#fae6bc" stroke-width="6" opacity="0.95"/>
+    <polygon points="0,-118 28,-86 0,-54 -28,-86" fill="#fff7ea" fill-opacity="0.25" stroke="#fff7ea" stroke-width="2"/>
+  </g>
+  <text x="48" y="64" fill="#edd6ad" font-family="ui-sans-serif, system-ui, sans-serif" font-size="12" letter-spacing="4" opacity="0.8">FINE JEWELLERY · CONCEPT STUDY 05</text>
+  <text x="48" y="548" fill="#fff7ea" font-family="Georgia, serif" font-style="italic" font-size="22" opacity="0.85">Aurelia Interlocking Vermeil Rings — Atelier Study</text>
+</svg>
