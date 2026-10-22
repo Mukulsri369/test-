@@ -1,164 +1,106 @@
 {
   "schemaVersion": 1,
   "template": "fashion-runway",
-  "brand": "MAISON VÉRA · DEMO",
+  "brand": "MAISON VÉRA",
   "category": "fashion",
-  "eyebrow": "AUTUMN / WINTER — SPATIAL ARCHIVE",
-  "headline": "Architecture you",
-  "emphasis": "inhabit.",
-  "summary": "An interactive luxury fashion house uniting sculptural footwear, tailored cashmere drapery, precision horology, and titanium accessories in three dimensions.",
-  "accent": "#e8c7b8",
-  "secondary": "#8c5854",
-  "background": "#120e10",
-  "foreground": "#faf2ef",
+  "eyebrow": "AUTUMN / WINTER — ATELIER ARCHIVE",
+  "headline": "Architectural form, unapologetic",
+  "emphasis": "material truth.",
+  "summary": "Photography-led luxury fashion house uniting sculptural footwear, double-faced Biella cashmere drapery, precision horology, and Sabae titanium eyewear with verified Khronos PBR 3D digital twins.",
+  "accent": "#8c6528",
+  "secondary": "#e4dccf",
+  "background": "#f6f2eb",
+  "foreground": "#191512",
   "concept": "fabric",
   "layout": "editorial",
   "chapters": [
-    "Sculpted kinetic footwear engineered for equilibrium",
-    "Architectural cashmere and silk drapery in motion",
-    "Micro-mechanical horology and titanium ateliers"
+    "Photogrammetry-grade 3D footwear with Italian suede and Vibram architecture",
+    "Double-faced 640 gsm Biella cashmere inspected via 2.35x optical textile loupe",
+    "13-mesh column-wheel horology and Sabae beta-titanium optical engineering"
   ],
   "products": [
     {
       "id": "mv-footwear-01",
-      "name": "Aether Carbon Runner",
+      "name": "Aether Sculpted Runner",
       "category": "footwear",
       "concept": "sneaker",
-      "description": "Sculpted dual-density sole with anatomical heel counter and hand-lasted matte calfskin upper. Shown as a labeled conceptual 3D silhouette.",
-      "modelPath": null,
-      "imagePath": "/images/maison-sneaker.svg",
-      "price": 68000,
-      "currency": "INR",
+      "description": "Full-grain calfskin suede, technical ripstop mesh, and dual-density architectural sole. Verified Khronos PBR 3D GLB + Studio Photography.",
+      "modelPath": "/models/atelier-footwear-shoe.glb",
+      "imagePath": "/images/product-sculpted-sneaker.jpg",
+      "price": 890,
+      "currency": "USD",
       "purchaseUrl": null,
       "specs": {
-        "Silhouette": "Conceptual 3D Sneaker Study",
-        "Upper Material": "Full-grain matte calfskin & technical mesh",
+        "Digital Twin": "Khronos PBR GLB (13,540 Vertices, 5 Maps)",
+        "Upper Material": "Italian Calfskin Suede & Ripstop",
         "Midsole": "Dual-density sculpted elastomer",
-        "Lighting Profile": "Directional Runway Key + Rim",
-        "Origin": "Milan Footwear Lab (Demo)"
+        "Lighting Profile": "Warm Atelier 3200K + Rim",
+        "Origin": "Montebelluna, Italy"
       },
       "hotspots": [
         {
           "id": "snk-sole",
-          "label": "Sculpted Midsole",
-          "description": "Beveled geometric sole profile with kinetic rebound",
-          "position": [
-            0.4,
-            -0.35,
-            0.3
-          ]
+          "label": "Cantilevered Heel Geometry",
+          "description": "Dual-density Pebax core wrapped in vulcanized rubber",
+          "position": [0.4, -0.35, 0.3]
         },
         {
           "id": "snk-lacing",
-          "label": "Tension Lacing",
-          "description": "Asymmetricfour-point lockdown bridge",
-          "position": [
-            -0.1,
-            0.35,
-            0.35
-          ]
-        },
-        {
-          "id": "snk-collar",
-          "label": "Anatomical Collar",
-          "description": "High-ankle architectural support cuff",
-          "position": [
-            -0.7,
-            0.42,
-            0
-          ]
+          "label": "Paneled Calfskin Quarter",
+          "description": "1.6 mm drum-dyed Italian suede with waxed lockstitching",
+          "position": [-0.1, 0.35, 0.35]
         }
       ]
     },
     {
       "id": "mv-clothing-02",
-      "name": "Nocturne Sculpted Cashmere Trench",
+      "name": "Nocturne Double-Faced Coat",
       "category": "clothing",
       "concept": "fabric",
-      "description": "Double-faced storm cashmere coat with continuous bias-cut drape and concealed horn closures. Shown as an abstract textile flow 3D study.",
+      "description": "Hand-loomed 640 gsm camel cashmere-wool overcoat with wide peak lapels and horn hardware. Inspected via high-resolution editorial photography and 2.35x optical loupe.",
       "modelPath": null,
-      "imagePath": "/images/maison-coat.svg",
-      "price": 245000,
-      "currency": "INR",
+      "imagePath": "/images/editorial-coat-drape.jpg",
+      "price": 3450,
+      "currency": "USD",
       "purchaseUrl": null,
       "specs": {
-        "Silhouette": "Conceptual 3D Textile Torus-Knot",
-        "Textile": "Double-faced 620gsm Inner Mongolian cashmere",
-        "Construction": "Hand-felled seams, bias-cut storm lapel",
-        "Lighting Profile": "Soft Editorial Diffused Fill",
-        "Origin": "Paris Atelier (Demo)"
+        "Presentation Medium": "Editorial Campaign Plate + 2.35x Optical Loupe",
+        "Textile": "640 gsm Biella Virgin Wool & Cashmere",
+        "Construction": "Unlined hand-split blind seam (26 hours)",
+        "Mill Provenance": "Biella, Piedmont, Italy"
       },
       "hotspots": [
         {
           "id": "fab-drape",
-          "label": "Bias-Cut Drape",
-          "description": "Continuous sculptural fold geometry",
-          "position": [
-            0.55,
-            0.3,
-            0.4
-          ]
-        },
-        {
-          "id": "fab-weave",
-          "label": "620gsm Cashmere Weave",
-          "description": "Low-sheen brushed surface roughness",
-          "position": [
-            -0.5,
-            -0.25,
-            0.35
-          ]
+          "label": "Hand-Picked Peak Lapel",
+          "description": "7 mm Punto Mano edge stitching along lapel roll",
+          "position": [0.55, 0.3, 0.4]
         }
       ]
     },
     {
       "id": "mv-watch-03",
-      "name": "Chronos Calibre IX Tourbillon",
+      "name": "Chronographe Calibre MV-01",
       "category": "watches",
       "concept": "watch",
-      "description": "Grade-5 brushed rose-gold-toned titanium case housing an openworked manual-wind calibre and bevelled indices. Shown as a conceptual 3D horology study.",
-      "modelPath": null,
-      "imagePath": "/images/maison-watch.svg",
-      "price": 890000,
-      "currency": "INR",
+      "description": "Column-wheel mechanical chronograph in brushed architecture with box-domed sapphire crystal. Verified 13-mesh Khronos PBR GLB + Macro Photography.",
+      "modelPath": "/models/atelier-chronograph-watch.glb",
+      "imagePath": "/images/product-chronograph-watch.jpg",
+      "price": 14800,
+      "currency": "USD",
       "purchaseUrl": null,
       "specs": {
-        "Silhouette": "Conceptual 3D Horology Study",
-        "Case": "40mm brushed rose-gold alloy & slate dial",
-        "Crystal": "Domed anti-reflective optical surface",
-        "Lighting Profile": "High-Contrast Metallic Macro Rig",
-        "Origin": "Geneva Watchmaking Studio (Demo)"
+        "Digital Twin": "13-Mesh Khronos GLB (104,765 Vertices, 8 Maps)",
+        "Calibre": "MV-01 Column-Wheel · 28,800 vph (4 Hz)",
+        "Power Reserve": "72 Hours Twin-Barrel Architecture",
+        "Case Dimensions": "40.0 mm x 10.8 mm · 10 ATM"
       },
       "hotspots": [
         {
           "id": "wtc-bezel",
-          "label": "Brushed Bezel",
-          "description": "Hand-satinated metallic case ring",
-          "position": [
-            0.65,
-            0.2,
-            0.15
-          ]
-        },
-        {
-          "id": "wtc-hands",
-          "label": "Faceted Hands",
-          "description": "Diamond-cut hour and minute hands",
-          "position": [
-            0.05,
-            0.15,
-            0.22
-          ]
-        },
-        {
-          "id": "wtc-lug",
-          "label": "Integrated Strap Lug",
-          "description": "Articulated chassis attachment",
-          "position": [
-            0,
-            -0.95,
-            0
-          ]
+          "label": "Box-Domed Sapphire Crystal",
+          "description": "Double-sided anti-reflective coating over diamond-faceted hands",
+          "position": [0.65, 0.2, 0.15]
         }
       ]
     },
@@ -167,121 +109,76 @@
       "name": "Solstice Titanium Optical Frame",
       "category": "accessories",
       "concept": "eyewear",
-      "description": "Featherweight Japanese beta-titanium twin-rim sunglasses with custom nose bridge and mineral-tinted lenses. Shown as a conceptual 3D eyewear study.",
-      "modelPath": null,
-      "imagePath": "/images/maison-eyewear.svg",
-      "price": 54000,
-      "currency": "INR",
+      "description": "Sabae beta-titanium rim architecture with warm gradient nylon sun lenses. Verified 8-mesh Khronos GLB + Carrara Marble Studio Photography.",
+      "modelPath": "/models/atelier-titanium-eyewear.glb",
+      "imagePath": "/images/product-titanium-eyewear.jpg",
+      "price": 640,
+      "currency": "USD",
       "purchaseUrl": null,
       "specs": {
-        "Silhouette": "Conceptual 3D Eyewear Frame",
-        "Frame": "Japanese beta-titanium & champagne gold plating",
-        "Lens": "Mineral glass with anti-reflective coating",
-        "Lighting Profile": "Studio Gallery Specular Rig",
-        "Origin": "Sabae Optical Workshop (Demo)"
+        "Digital Twin": "8-Mesh Khronos GLB (7,420 Vertices)",
+        "Frame Alloy": "Sabae Japanese Beta-Titanium (18 g)",
+        "Lens": "2-Base Nylon with Back-AR Coating",
+        "Dimensions": "51 - 20 - 145 mm"
       },
       "hotspots": [
         {
           "id": "eye-bridge",
-          "label": "Sculpted Bridge",
-          "description": "Machined single-piece titanium nose bridge",
-          "position": [
-            0,
-            0.18,
-            0.1
-          ]
-        },
-        {
-          "id": "eye-lens",
-          "label": "Mineral Sun Lens",
-          "description": "Semi-transparent optical shader",
-          "position": [
-            0.76,
-            0,
-            0.05
-          ]
+          "label": "Sabae Beta-Titanium Bridge",
+          "description": "Coin-stamped titanium nose bridge with micro-fluted relief",
+          "position": [0, 0.18, 0.1]
         }
       ]
     },
     {
       "id": "mv-accessory-05",
-      "name": "Aurelia Interlocking Vermeil Rings",
+      "name": "Obsidian Architectural Band Ring",
       "category": "accessories",
       "concept": "rings",
-      "description": "Tri-band architectural ring stack cast in recycled 18k gold vermeil crowned with an octahedral crystal study.",
+      "description": "Hand-forged 18k rose gold and 950 platinum dual-channel band with flush-set VVS1 diamond pavé. Inspected via macro still-life photography and 2.35x optical loupe.",
       "modelPath": null,
-      "imagePath": "/images/maison-rings.svg",
-      "price": 115000,
-      "currency": "INR",
+      "imagePath": "/images/product-signet-rings.jpg",
+      "price": 2150,
+      "currency": "USD",
       "purchaseUrl": null,
       "specs": {
-        "Silhouette": "Conceptual 3D Tri-Ring & Crystal",
-        "Alloy": "18k Champagne Gold & Sterling Core",
-        "Stone Study": "Octahedral refractive crystal geometry",
-        "Lighting Profile": "Fine Jewellery Specular Rig",
-        "Origin": "Antwerp Jewellery Studio (Demo)"
+        "Presentation Medium": "Macro Still-Life Plate + 2.35x Optical Loupe",
+        "Precious Alloys": "18k Rose Gold & 950 Platinum",
+        "Stone Specification": "0.42 ct tw VVS1 F-G Pavé",
+        "Hallmark": "Assayed in Paris, France"
       },
       "hotspots": [
         {
           "id": "rng-stone",
-          "label": "Octahedral Crown",
-          "description": "Physical transmission refractive cut",
-          "position": [
-            0,
-            0.72,
-            0.15
-          ]
-        },
-        {
-          "id": "rng-band",
-          "label": "Tri-Axis Bands",
-          "description": "High-metalness interlocking torus rings",
-          "position": [
-            0.35,
-            -0.1,
-            0.2
-          ]
+          "label": "Flush-Set VVS1 Pavé Channel",
+          "description": "Microscope-set brilliant diamonds recessed in platinum",
+          "position": [0, 0.72, 0.15]
         }
       ]
     },
     {
       "id": "mv-accessory-06",
-      "name": "Nomad Architectural Weekender Pack",
+      "name": "Monolith Structured Weekender",
       "category": "accessories",
       "concept": "gear",
-      "description": "Structured saddle-leather and ballistic canvas travel pack with twin anodized side cylinders and modular front pocket.",
+      "description": "Full-grain matte black calfskin and ballistic architectural carryall with PVD solid brass hardware. Inspected via chiaroscuro studio photography and 2.35x leather loupe.",
       "modelPath": null,
-      "imagePath": "/images/maison-pack.svg",
-      "price": 142000,
-      "currency": "INR",
+      "imagePath": "/images/product-leather-weekender.jpg",
+      "price": 2450,
+      "currency": "USD",
       "purchaseUrl": null,
       "specs": {
-        "Silhouette": "Conceptual 3D Structured Pack",
-        "Body": "Vegetable-tanned saddle leather & canvas",
-        "Hardware": "Brushed gunmetal twin side cylinders",
-        "Lighting Profile": "Architectural Warm Gallery Rig",
-        "Origin": "Florence Leather Goods (Demo)"
+        "Presentation Medium": "Chiaroscuro Studio Plate + 2.35x Loupe",
+        "Exterior Hide": "Full-Grain Matte Calfskin & Ballistic Cordura",
+        "Hardware": "PVD Matte-Black Solid Brass",
+        "Cabin Volume": "38 Liters · IATA Carry-On Compliant"
       },
       "hotspots": [
         {
           "id": "pak-handle",
-          "label": "Reinforced Top Arch",
-          "description": "Hand-stitched tubular leather grip",
-          "position": [
-            0,
-            1.04,
-            0.1
-          ]
-        },
-        {
-          "id": "pak-pocket",
-          "label": "Modular Utility Vault",
-          "description": "Structured exterior compartment",
-          "position": [
-            0,
-            -0.53,
-            0.45
-          ]
+          "label": "Hand-Painted Waxed Edges",
+          "description": "Five coats of heated Fenice edge paint",
+          "position": [0, 1.04, 0.1]
         }
       ]
     }

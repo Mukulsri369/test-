@@ -1,1504 +1,1226 @@
-import { lazy, Suspense, useEffect, useMemo, useRef, useState } from 'react';
-import { motion } from 'motion/react';
-import {
-  ArrowDown,
-  ArrowRight,
-  ArrowUpRight,
-  Box,
-  Check,
-  ChevronLeft,
-  ChevronRight,
-  Compass,
-  Eye,
-  Layers,
-  MoveUpRight,
-  Plus,
-  RotateCcw,
-  ShoppingBag,
-  Sliders,
-  Sparkles,
-  Trash2,
-  X,
-} from 'lucide-react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import raw from './generated.site.json';
-import allExperiencePresets from '../../experience-presets.json';
-import allSiteTemplates from '../../site-templates.json';
-import type { CameraStyle, EffectStyle, ExperiencePreset, LightingMood, ProductHotspot } from './experience';
-import { ExperienceModules, type SiteModule } from './modules/ExperienceModules';
+import ModelViewport, { CameraPreset, LightingPreset } from './ModelViewport';
+import ExperienceModules, { SiteProduct } from './modules/ExperienceModules';
 import {
-  AnimatedCounter,
-  MagneticButton,
-  Marquee,
-  ParallaxSection,
-  Reveal,
-  ScrollProgress,
-  SmoothScroll,
-  SpotlightCard,
-  WordReveal,
-} from '@/components/creative';
-import { FaqSection } from '@/components/sections/FaqSection';
-import { Input } from '@/components/ui/input';
-import { Switch } from '@/components/ui/switch';
+  PhotorealProductShowcase,
+  PhotorealShowcaseProduct,
+} from './media/PhotorealProductShowcase';
+import { ExperimentalConceptLab } from './media/ExperimentalConceptLab';
+import { ScrollWorldBackground } from './media/ScrollWorldBackground';
+import { SmoothScroll } from '@/components/creative/SmoothScroll';
+import { GEMINI_IMAGE_PIPELINE_STATUS, isVerifiedGlbPath } from './media/MediaPipeline';
 import './studio.css';
-import './premium.css';
 
 gsap.registerPlugin(ScrollTrigger);
-const ModelViewport = lazy(() => import('./ModelViewport'));
 
-type Product = {
-  id: string;
-  name: string;
-  category?: string;
-  description?: string;
-  modelPath?: string | null;
-  imagePath?: string | null;
-  price?: number | null;
-  currency?: string;
-  purchaseUrl?: string | null;
-  concept?: string;
-  specs?: Record<string, string>;
-  hotspots?: ProductHotspot[];
+export const SITE_CONFIG = {
+  brand: 'MAISON VÉRA',
+  sector: 'Luxury Fashion, Footwear, Watches & Optical Atelier',
+  tagline: 'Architectural silhouettes, rare textiles, and precision horology.',
+  subtitle:
+    'Autumn / Winter Atelier Collection — Photography-led editorial curation paired with real-time Khronos PBR 3D inspection.',
+  templateId: 'fashion-runway',
+  recipeId: 'fashion-runway',
+  experiencePreset: 'fashion-runway',
+  accentColor: '#c9a46b',
+  secondaryColor: '#e6ddd0',
+  cameraPreset: 'runway' as CameraPreset,
+  lightingPreset: 'warm-gallery' as LightingPreset,
 };
 
-type Config = {
-  schemaVersion: number;
-  template: string;
-  brand: string;
-  category: string;
-  eyebrow: string;
-  headline: string;
-  emphasis: string;
-  summary: string;
-  accent: string;
-  secondary: string;
-  background: string;
-  foreground: string;
-  concept: string;
-  layout: string;
-  chapters: string[];
-  products: Product[];
-  recipe?: string[];
-  supportEmail?: string | null;
-};
-
-const site = raw as unknown as Config;
-const presetsMap = allExperiencePresets as Record<string, ExperiencePreset>;
-const defaultExperience = presetsMap[site.template] || {
-  mood: 'fashion',
-  camera: 'runway',
-  motion: 'editorial',
-  effects: 'soft',
-  productInteraction: 'orbit',
-};
-
-type CategoryRealmKey = 'all' | 'footwear' | 'clothing' | 'watches' | 'accessories';
-
-const categoryRealms: Record<
-  CategoryRealmKey,
+export const PRODUCTS: PhotorealShowcaseProduct[] = [
   {
-    id: CategoryRealmKey;
-    label: string;
-    templateRef: string;
-    kicker: string;
-    title: string;
-    subtitle: string;
-    accent: string;
-    secondary: string;
-    background: string;
-    foreground: string;
-    concept: string;
-    experience: ExperiencePreset;
-    finishes: { id: string; name: string; hex: string }[];
-  }
-> = {
-  all: {
-    id: 'all',
-    label: 'All Creations',
-    templateRef: 'fashion-runway',
-    kicker: 'THE COMPLETE ARCHIVE · 04 ATELIERS',
-    title: 'Sculpted across four disciplines.',
-    subtitle: 'Footwear, couture drapery, precision horology, and architectural accessories unified in a single spatial curation.',
-    accent: site.accent || '#e8c7b8',
-    secondary: site.secondary || '#8c5854',
-    background: site.background || '#120e10',
-    foreground: site.foreground || '#faf2ef',
-    concept: 'sneaker',
-    experience: presetsMap['fashion-runway'] || defaultExperience,
-    finishes: [
-      { id: 'champagne', name: 'Rose Champagne', hex: '#e8c7b8' },
-      { id: 'emerald', name: 'Kinetic Mint', hex: '#c8f3e0' },
-      { id: 'gold', name: 'Horology Gold', hex: '#e4bb83' },
-      { id: 'titanium', name: 'Warm Titanium', hex: '#f6ddba' },
+    id: 'mv-footwear-01',
+    name: 'Aether Sculpted Runner',
+    category: 'Footwear',
+    subtitle: 'Full-grain calfskin suede, technical ripstop mesh, and dual-density architectural sole',
+    price: '$890',
+    url: '#product-mv-footwear-01',
+    image: '/images/product-sculpted-sneaker.jpg',
+    modelPath: '/models/atelier-footwear-shoe.glb',
+    concept: 'Sneaker',
+    accentColor: '#c9a46b',
+    secondaryColor: '#dfd5c6',
+    cameraPreset: 'runway',
+    lightingPreset: 'warm-gallery',
+    provenanceNote: 'VERIFIED PBR GLB (13,540 VERTICES · 5 TEXTURES) + STUDIO PHOTOGRAPHY',
+    glbSpecLabel: '13.5k Verts · 5 PBR Maps',
+    craftsmanshipNarrative:
+      'Constructed in our Veneto footwear workshop from vegetable-tanned suede and breathable ballistic mesh. The cantilevered midsole is compression-molded for torsional rigidity while preserving an unmistakable sculptural stance.',
+    gallery: [
+      {
+        url: '/images/product-sculpted-sneaker.jpg',
+        label: 'Monolith Plinth Study',
+        detail: 'Three-quarter studio profile on architectural travertine plinth.',
+      },
+      {
+        url: '/images/hero-campaign-editorial.jpg',
+        label: 'Tailored Styling Context',
+        detail: 'Paired with charcoal wool tailoring on architectural stone steps.',
+      },
     ],
-  },
-  footwear: {
-    id: 'footwear',
-    label: 'Footwear Lab',
-    templateRef: 'footwear-lab',
-    kicker: 'DISCIPLINE 01 · KINETIC FOOTWEAR',
-    title: 'Rotating showcase with directional rim lighting.',
-    subtitle: 'Engineered elastomer geometry and hand-lasted calfskin staged under high-contrast directional runway lighting.',
-    accent: '#c8f3e0',
-    secondary: '#365b57',
-    background: '#091b1a',
-    foreground: '#f0fff7',
-    concept: 'sneaker',
-    experience: presetsMap['footwear-lab'] || { mood: 'fashion', camera: 'runway', motion: 'editorial', effects: 'soft', productInteraction: 'orbit' },
-    finishes: [
-      { id: 'mint', name: 'Glacier Mint', hex: '#c8f3e0' },
-      { id: 'obsidian', name: 'Carbon Silver', hex: '#b8c7c4' },
-      { id: 'copper', name: 'Thermal Copper', hex: '#df9a78' },
+    hotspots: [
+      {
+        id: 'hs-fw-1',
+        label: 'Cantilevered Heel Geometry',
+        specification: 'Dual-density Pebax® core wrapped in micro-ribbed vulcanized rubber.',
+        x: 28,
+        y: 66,
+      },
+      {
+        id: 'hs-fw-2',
+        label: 'Paneled Calfskin Quarter',
+        specification: '1.6 mm drum-dyed Italian suede with waxed Cotton-60 lockstitching.',
+        x: 56,
+        y: 48,
+      },
+      {
+        id: 'hs-fw-3',
+        label: 'Articulated Toe Box',
+        specification: 'Reinforced multi-weave ballistic nylon engineered for crease resistance.',
+        x: 74,
+        y: 62,
+      },
     ],
-  },
-  clothing: {
-    id: 'clothing',
-    label: 'Designer Clothing',
-    templateRef: 'fashion-runway',
-    kicker: 'DISCIPLINE 02 · COUTURE DRAPERY',
-    title: 'Editorial presentation with fluid fabric motion.',
-    subtitle: 'Double-faced 620gsm cashmere and bias-cut silk translated into continuous sculptural ribbon geometry.',
-    accent: '#f0c8bb',
-    secondary: '#b16866',
-    background: '#181215',
-    foreground: '#faefed',
-    concept: 'fabric',
-    experience: presetsMap['fashion-runway'] || { mood: 'fashion', camera: 'runway', motion: 'editorial', effects: 'soft', productInteraction: 'orbit' },
-    finishes: [
-      { id: 'blush', name: 'Cashmere Rose', hex: '#f0c8bb' },
-      { id: 'ivory', name: 'Raw Silk Ivory', hex: '#f7eee4' },
-      { id: 'garnet', name: 'Nocturne Bordeaux', hex: '#c97a78' },
+    specs: [
+      { label: '3D Digital Twin', value: 'Khronos PBR GLB (13,540 Vertices)' },
+      { label: 'Upper Material', value: 'Italian Calfskin Suede & Ripstop' },
+      { label: 'Outsole Compound', value: 'High-Abrasion Vibram® Architectural' },
+      { label: 'Origin', value: 'Montebelluna, Italy' },
     ],
-  },
-  watches: {
-    id: 'watches',
-    label: 'Haute Horlogerie',
-    templateRef: 'luxury-product',
-    kicker: 'DISCIPLINE 03 · PRECISION HOROLOGY',
-    title: 'Macro close-up calibration with metallic specular rig.',
-    subtitle: 'Satinated rose-gold alloys, diamond-cut hands, and exposed mechanical architecture under macro studio lighting.',
-    accent: '#e4bb83',
-    secondary: '#6f4535',
-    background: '#0c0b0c',
-    foreground: '#f6efe4',
-    concept: 'watch',
-    experience: { mood: 'jewelry', camera: 'macro', motion: 'precision', effects: 'soft', productInteraction: 'orbit' },
-    finishes: [
-      { id: 'rosegold', name: '18k Rose Gold', hex: '#e4bb83' },
-      { id: 'platinum', name: 'Brushed Platinum', hex: '#d8e0e8' },
-      { id: 'bronze', name: 'Aged Bronze', hex: '#c49363' },
+    features: [
+      'Hand-lasted upper with raw-edge suede paneling and recessed eyelet stays',
+      'Anatomical cork-lined footbed that molds to the wearer over 48 hours',
+      'Real-time WebGL2 PBR material inspection with 5 calibrated texture maps',
     ],
-  },
-  accessories: {
-    id: 'accessories',
-    label: 'Luxury Accessories',
-    templateRef: 'eyewear-atelier',
-    kicker: 'DISCIPLINE 04 · OPTICAL & JEWELLERY ATELIER',
-    title: 'Gallery studio composition and interactive inspection.',
-    subtitle: 'Beta-titanium eyewear frames, interlocking vermeil rings, and structured weekender packs in a warm gallery stage.',
-    accent: '#f6ddba',
-    secondary: '#a48365',
-    background: '#151613',
-    foreground: '#fff9eb',
-    concept: 'eyewear',
-    experience: presetsMap['eyewear-atelier'] || { mood: 'gallery', camera: 'reveal', motion: 'precision', effects: 'soft', productInteraction: 'orbit' },
-    finishes: [
-      { id: 'titanium', name: 'Champagne Titanium', hex: '#f6ddba' },
-      { id: 'vermeil', name: 'Antwerp Vermeil', hex: '#edd6ad' },
-      { id: 'sage', name: 'Florentine Olive', hex: '#d4e6aa' },
-    ],
-  },
-};
-
-const categoryOrder: CategoryRealmKey[] = ['all', 'footwear', 'clothing', 'watches', 'accessories'];
-
-const atelierFaqs = [
-  {
-    question: 'How are the 3D product models rendered in this storefront?',
-    answer:
-      'Each piece is rendered in real time using React Three Fiber, Three.js PBR materials, and mood-calibrated studio lightformers. When a licensed GLB file is supplied in public/models/, the viewer automatically normalizes and mounts the exact product mesh; otherwise it displays an explicitly labeled conceptual 3D silhouette.',
   },
   {
-    question: 'Does each fashion category use a distinct lighting and camera setup?',
-    answer:
-      'Yes. Footwear uses directional runway lighting and sweeping camera paths; Designer Clothing uses soft editorial fill; Watches use high-contrast metallic jewellery lighting with macro camera proximity; Accessories use warm gallery lightformers.',
+    id: 'mv-clothing-02',
+    name: 'Nocturne Double-Faced Coat',
+    category: 'Designer Clothing',
+    subtitle: 'Hand-loomed camel cashmere-wool overcoat with wide peak lapels and horn hardware',
+    price: '$3,450',
+    url: '#product-mv-clothing-02',
+    image: '/images/editorial-coat-drape.jpg',
+    modelPath: null,
+    concept: 'Fabric',
+    accentColor: '#c9a46b',
+    secondaryColor: '#d9c6b0',
+    cameraPreset: 'sweep',
+    lightingPreset: 'fashion',
+    provenanceNote: 'EDITORIAL CAMPAIGN PHOTOGRAPHY · 2.35× OPTICAL TEXTILE LOUPE',
+    craftsmanshipNarrative:
+      'Cut from 640 gsm double-faced Biella cashmere and virgin wool. Every seam is hand-split and blind-stitched by master tailors over 26 hours, eliminating internal lining bulk so the coat drapes with fluid architectural gravity.',
+    gallery: [
+      {
+        url: '/images/editorial-coat-drape.jpg',
+        label: 'Architectural Stairway Lookbook',
+        detail: 'Full-length camel drape showcasing wide peak lapels and belted waist tension.',
+      },
+      {
+        url: '/images/editorial-coat-detail.jpg',
+        label: 'Atelier Cashmere Archive',
+        detail: 'Macro tonal study of brushed cashmere, camel wool, and espresso knitwear.',
+      },
+      {
+        url: '/images/editorial-bomber-studio.jpg',
+        label: 'Companion Technical Silk Blouson',
+        detail: 'Terracotta-bronze technical silk blouson from the same Autumn/Winter capsule.',
+      },
+    ],
+    hotspots: [
+      {
+        id: 'hs-cl-1',
+        label: 'Hand-Picked Peak Lapel',
+        specification: '7 mm Punto Mano hand-picked edge stitching along the structured lapel roll.',
+        x: 48,
+        y: 34,
+      },
+      {
+        id: 'hs-cl-2',
+        label: 'Double-Faced Cashmere Weave',
+        specification: '640 gsm Biella virgin wool & Inner Mongolian cashmere (85% / 15% blend).',
+        x: 54,
+        y: 58,
+      },
+      {
+        id: 'hs-cl-3',
+        label: 'Cinch Waist Tie & Horn Buckle',
+        specification: 'Detachable self-belt with hand-turned smoky buffalo horn hardware.',
+        x: 46,
+        y: 72,
+      },
+    ],
+    specs: [
+      { label: 'Presentation Medium', value: 'High-Resolution Editorial Plates + 2.35× Loupe' },
+      { label: 'Textile Weight', value: '640 gsm Double-Faced Wool-Cashmere' },
+      { label: 'Construction', value: 'Unlined Hand-Split Blind Seam (26 Hours)' },
+      { label: 'Mill Provenance', value: 'Biella, Piedmont, Italy' },
+    ],
+    features: [
+      'Zero cartoon 3D cloth approximations — inspected exclusively via authentic editorial photography',
+      'Hand-basted canvas chest piece for permanent lapel roll memory',
+      'Deep storm-welted pockets lined in brushed Bemberg cupro',
+    ],
   },
   {
-    question: 'How does the experience adapt for mobile devices and reduced motion?',
-    answer:
-      'Below-the-fold 3D viewports pause rendering when offscreen or when the browser tab is hidden, adapt pixel ratio dynamically via PerformanceMonitor, and switch to static demand rendering when prefers-reduced-motion is enabled.',
+    id: 'mv-watch-03',
+    name: 'Chronographe Calibre MV-01',
+    category: 'Watches',
+    subtitle: 'Column-wheel mechanical chronograph in brushed architecture with sapphire crystal',
+    price: '$14,800',
+    url: '#product-mv-watch-03',
+    image: '/images/product-chronograph-watch.jpg',
+    modelPath: '/models/atelier-chronograph-watch.glb',
+    concept: 'Watch',
+    accentColor: '#d4af7a',
+    secondaryColor: '#c7cfd6',
+    cameraPreset: 'macro',
+    lightingPreset: 'jewelry',
+    provenanceNote: 'VERIFIED 13-MESH HOROLOGICAL GLB (104,765 VERTICES · 8 PBR MAPS)',
+    glbSpecLabel: '104.7k Verts · 13 Meshes',
+    craftsmanshipNarrative:
+      'Regulated in five positions at our Geneva partner manufacture, the Calibre MV-01 pairs an integrated column-wheel chronograph mechanism with hand-beveled bridges, diamond-polished indices, and a box-domed sapphire crystal.',
+    gallery: [
+      {
+        url: '/images/product-chronograph-watch.jpg',
+        label: 'Dress Case & Calfskin Study',
+        detail: 'Warm rose-gold dress profile paired with pebble-grain taupe calfskin strap.',
+      },
+      {
+        url: '/images/hero-campaign-editorial.jpg',
+        label: 'Wrist Architecture under Cuff',
+        detail: '10.8 mm case profile engineered to glide effortlessly beneath a tailored cuff.',
+      },
+    ],
+    hotspots: [
+      {
+        id: 'hs-wt-1',
+        label: 'Box-Domed Sapphire Crystal',
+        specification: 'Double-sided anti-reflective coating over diamond-faceted hands.',
+        x: 52,
+        y: 46,
+      },
+      {
+        id: 'hs-wt-2',
+        label: 'Satin-Brushed Case Flank',
+        specification: 'Alternating vertical satin brushing and mirror-polished 45° chamfers.',
+        x: 64,
+        y: 54,
+      },
+      {
+        id: 'hs-wt-3',
+        label: 'Hand-Stitched Calfskin Lug',
+        specification: 'Curved spring-bar integration with vegetable-tanned saddle lining.',
+        x: 42,
+        y: 72,
+      },
+    ],
+    specs: [
+      { label: '3D Horological Model', value: '13-Mesh Khronos GLB (104,765 Vertices)' },
+      { label: 'Calibre Frequency', value: '28,800 vph (4 Hz) · Column-Wheel' },
+      { label: 'Power Reserve', value: '72 Hours Twin-Barrel Architecture' },
+      { label: 'Case Dimensions', value: '40.0 mm × 10.8 mm · 10 ATM' },
+    ],
+    features: [
+      'Inspectable 104,765-vertex 3D chronograph assembly with tachymeter bezel and sub-dials',
+      'Free-sprung balance wheel with variable-inertia gold timing screws',
+      'Delivered with bespoke walnut presentation vault and chronometer certificate',
+    ],
+  },
+  {
+    id: 'mv-accessory-04',
+    name: 'Solstice Titanium Optical Frame',
+    category: 'Accessories',
+    subtitle: 'Japanese beta-titanium rim architecture with custom CR-39 warm gradient sun lenses',
+    price: '$640',
+    url: '#product-mv-accessory-04',
+    image: '/images/product-titanium-eyewear.jpg',
+    modelPath: '/models/atelier-titanium-eyewear.glb',
+    concept: 'Eyewear',
+    accentColor: '#c9a46b',
+    secondaryColor: '#e4ddd3',
+    cameraPreset: 'reveal',
+    lightingPreset: 'warm-gallery',
+    provenanceNote: 'VERIFIED 8-MESH EYEWEAR GLB (7,420 VERTICES) + CARRARA STUDIO PLATE',
+    glbSpecLabel: '7.4k Verts · 8 Meshes',
+    craftsmanshipNarrative:
+      'Stamped and milled in Sabae, Japan from aerospace-grade beta-titanium. The ultra-light 18-gram chassis features custom-torqued monoblock hinges and optical-class nylon lenses with oleophobic and back-surface anti-reflective treatments.',
+    gallery: [
+      {
+        url: '/images/product-titanium-eyewear.jpg',
+        label: 'Carrara Marble Still Life',
+        detail: 'Warm gold-titanium bridge and gradient lenses photographed on natural stone.',
+      },
+    ],
+    hotspots: [
+      {
+        id: 'hs-ey-1',
+        label: 'Sabae Beta-Titanium Bridge',
+        specification: 'Coin-stamped titanium nose bridge with micro-fluted tension relief.',
+        x: 50,
+        y: 46,
+      },
+      {
+        id: 'hs-ey-2',
+        label: 'Nylon Gradient Sun Lens',
+        specification: '100% UVA/UVB protection with internal anti-reflective coating.',
+        x: 36,
+        y: 52,
+      },
+    ],
+    specs: [
+      { label: '3D Digital Twin', value: '8-Mesh Khronos GLB (7,420 Vertices)' },
+      { label: 'Chassis Alloy', value: 'Sabae Japanese Beta-Titanium (18 g)' },
+      { label: 'Lens Optics', value: '2-Base Nylon with Back-AR Coating' },
+      { label: 'Dimensions', value: '51 □ 20 — 145 mm' },
+    ],
+    features: [
+      'Real-time 3D frame inspection alongside Carrara marble studio photography',
+      'Screwless monoblock hinge tested to 25,000 open/close cycles',
+      'Counter-weighted temple tips for zero nasal bridge pressure',
+    ],
+  },
+  {
+    id: 'mv-accessory-05',
+    name: 'Obsidian Architectural Band Ring',
+    category: 'Accessories',
+    subtitle: 'Hand-forged 18k rose gold and platinum dual-channel band with flush-set diamond pavé',
+    price: '$2,150',
+    url: '#product-mv-accessory-05',
+    image: '/images/product-signet-rings.jpg',
+    modelPath: null,
+    concept: 'Rings',
+    accentColor: '#c9a46b',
+    secondaryColor: '#d8d0c5',
+    cameraPreset: 'macro',
+    lightingPreset: 'jewelry',
+    provenanceNote: 'MACRO STILL-LIFE PHOTOGRAPHY · 2.35× OPTICAL GEM & ALLOY LOUPE',
+    craftsmanshipNarrative:
+      'Forged from recycled 18k rose gold fused with a high-density 950 platinum inner sleeve. The stepped architectural bevels frame flush-set VVS1 brilliant-cut diamonds that catch ambient light with restrained precision.',
+    gallery: [
+      {
+        url: '/images/product-signet-rings.jpg',
+        label: 'Obsidian Leather Macro Plate',
+        detail: 'Chiaroscuro studio macro highlighting brushed rose gold and flush diamond setting.',
+      },
+    ],
+    hotspots: [
+      {
+        id: 'hs-rg-1',
+        label: 'Flush-Set VVS1 Pavé Channel',
+        specification: 'Microscope-set brilliant diamonds recessed within a 950 platinum bezel.',
+        x: 49,
+        y: 48,
+      },
+      {
+        id: 'hs-rg-2',
+        label: 'Comfort-Turned Interior Bore',
+        specification: 'Court-profile interior chamfered for effortless daily wear.',
+        x: 60,
+        y: 58,
+      },
+    ],
+    specs: [
+      { label: 'Presentation Medium', value: 'Macro Still-Life Plate + 2.35× Loupe' },
+      { label: 'Precious Alloys', value: '18k Rose Gold & 950 Platinum' },
+      { label: 'Stone Specification', value: '0.42 ct tw VVS1 F-G Pavé' },
+      { label: 'Hallmark', value: 'Assayed in Paris, France' },
+    ],
+    features: [
+      'High-resolution macro photography reveals true alloy grain and stone refraction',
+      'Seamless bi-metal sintered bond between rose gold and platinum',
+      'Individually numbered inside the band with bespoke sizing guarantee',
+    ],
+  },
+  {
+    id: 'mv-accessory-06',
+    name: 'Monolith Structured Weekender',
+    category: 'Accessories',
+    subtitle: 'Full-grain matte black calfskin & ballistic architectural carryall with anodized hardware',
+    price: '$2,450',
+    url: '#product-mv-accessory-06',
+    image: '/images/product-leather-weekender.jpg',
+    modelPath: null,
+    concept: 'Gear',
+    accentColor: '#b8945f',
+    secondaryColor: '#9c968f',
+    cameraPreset: 'architectural',
+    lightingPreset: 'warm-gallery',
+    provenanceNote: 'CHIAROSCURO STUDIO PHOTOGRAPHY · 2.35× LEATHER GRAIN LOUPE',
+    craftsmanshipNarrative:
+      'Engineered to retain its crisp architectural silhouette whether empty or fully packed for a 72-hour departure. Hand-edged matte black calfskin panels are reinforced with high-tenacity ballistic weave and matte-anodized solid brass closures.',
+    gallery: [
+      {
+        url: '/images/product-leather-weekender.jpg',
+        label: 'Chiaroscuro Monolith Study',
+        detail: 'Low-key directional studio lighting emphasizing structured gussets and seam relief.',
+      },
+    ],
+    hotspots: [
+      {
+        id: 'hs-wk-1',
+        label: 'Hand-Painted Waxed Edges',
+        specification: 'Five coats of heated Fenice edge paint sanded smooth between applications.',
+        x: 45,
+        y: 38,
+      },
+      {
+        id: 'hs-wk-2',
+        label: 'Structured Gusset Spine',
+        specification: 'Internal memory-polymer framing maintains vertical posture under load.',
+        x: 58,
+        y: 64,
+      },
+    ],
+    specs: [
+      { label: 'Presentation Medium', value: 'Chiaroscuro Studio Plate + 2.35× Loupe' },
+      { label: 'Exterior Hide', value: 'Full-Grain Matte Calfskin & Ballistic Cordura' },
+      { label: 'Hardware', value: 'PVD Matte-Black Solid Brass' },
+      { label: 'Cabin Volume', value: '38 Liters · IATA Carry-On Compliant' },
+    ],
+    features: [
+      'Dedicated padded 16-inch folio vault and passport security pocket',
+      'Hand-stitched load-bearing handle anchors reinforced with hidden titanium plates',
+      'Includes waterproofed linen dust cover and serialized luggage tag',
+    ],
   },
 ];
 
-function useReducedMotion() {
-  const [reduced, setReduced] = useState(false);
-  useEffect(() => {
-    const m = window.matchMedia('(prefers-reduced-motion: reduce)');
-    const update = () => setReduced(m.matches);
-    update();
-    m.addEventListener('change', update);
-    return () => m.removeEventListener('change', update);
-  }, []);
-  return reduced;
-}
+const CATEGORIES = ['All', 'Footwear', 'Designer Clothing', 'Watches', 'Accessories'] as const;
 
-function cost(p: Product) {
-  if (typeof p.price !== 'number') return 'Price on request';
-  try {
-    return new Intl.NumberFormat('en-IN', { style: 'currency', currency: p.currency || 'INR', maximumFractionDigits: 0 }).format(p.price);
-  } catch {
-    return `${p.price}`;
-  }
-}
-
-function AnimIn({ children, className = '', delay = 0 }: { children: React.ReactNode; className?: string; delay?: number }) {
-  const reduced = useReducedMotion();
-  return (
-    <motion.div
-      className={className}
-      initial={reduced ? false : { opacity: 0, y: 26 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, amount: 0.12 }}
-      transition={{ duration: reduced ? 0 : 0.85, delay: reduced ? 0 : delay, ease: [0.22, 1, 0.36, 1] }}
-    >
-      {children}
-    </motion.div>
-  );
-}
-
-type BagItem = { product: Product; finish: string; size: string; qty: number };
-
-function ProductDialog({
-  item,
-  close,
-  next,
-  prev,
-  reduced,
-  onAddToBag,
-}: {
-  item: Product;
-  close: () => void;
-  next: () => void;
-  prev: () => void;
-  reduced: boolean;
-  onAddToBag: (product: Product, finish: string, size: string) => void;
-}) {
-  const closeRef = useRef<HTMLButtonElement>(null);
-  const dialogRef = useRef<HTMLElement>(null);
-  const catKey = (item.category as CategoryRealmKey) in categoryRealms ? (item.category as CategoryRealmKey) : 'all';
-  const realm = categoryRealms[catKey];
-
-  const [activeFinish, setActiveFinish] = useState(realm.finishes[0]);
-  const [activeMood, setActiveMood] = useState<LightingMood>(realm.experience.mood);
-  const [activeCamera, setActiveCamera] = useState<CameraStyle>(realm.experience.camera);
-  const [showHotspots, setShowHotspots] = useState(true);
-  const [hudCollapsed, setHudCollapsed] = useState(false);
-
-  useEffect(() => {
-    const nextRealm = categoryRealms[(item.category as CategoryRealmKey) in categoryRealms ? (item.category as CategoryRealmKey) : 'all'];
-    setActiveFinish(nextRealm.finishes[0]);
-    setActiveMood(nextRealm.experience.mood);
-    setActiveCamera(nextRealm.experience.camera);
-  }, [item]);
-
-  useEffect(() => {
-    const previouslyFocused = document.activeElement as HTMLElement | null;
-    const key = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') close();
-      if (e.key === 'ArrowRight') next();
-      if (e.key === 'ArrowLeft') prev();
-      if (e.key.toLowerCase() === 'h') setHudCollapsed((v) => !v);
-      if (e.key === 'Tab' && dialogRef.current) {
-        const items = Array.from(
-          dialogRef.current.querySelectorAll<HTMLElement>('button:not([disabled]),a[href],input:not([disabled]),[tabindex]:not([tabindex="-1"])')
-        );
-        if (!items.length) return;
-        const first = items[0],
-          last = items[items.length - 1];
-        if (e.shiftKey && document.activeElement === first) {
-          e.preventDefault();
-          last.focus();
-        } else if (!e.shiftKey && document.activeElement === last) {
-          e.preventDefault();
-          first.focus();
-        }
-      }
-    };
-    document.addEventListener('keydown', key);
-    closeRef.current?.focus();
-    const old = document.body.style.overflow;
-    document.body.style.overflow = 'hidden';
-    return () => {
-      document.removeEventListener('keydown', key);
-      document.body.style.overflow = old;
-      previouslyFocused?.focus();
-    };
-  }, [close, next, prev]);
-
-  const customExperience: ExperiencePreset = {
-    ...realm.experience,
-    mood: activeMood,
-    camera: activeCamera,
-  };
-
-  return (
-    <div
-      className="cs-dialog-backdrop"
-      onMouseDown={(e) => {
-        if (e.target === e.currentTarget) close();
-      }}
-    >
-      <section ref={dialogRef} role="dialog" aria-modal="true" aria-label={`3D preview of ${item.name}`} className="cs-dialog">
-        <div className="cs-dialog-head">
-          <div>
-            <span className="cs-eyebrow">
-              {realm.label.toUpperCase()} · {item.modelPath ? 'VERIFIED 3D ASSET' : 'CONCEPTUAL 3D STUDIO'}
-            </span>
-            <h3>{item.name}</h3>
-          </div>
-          <div className="flex items-center gap-3">
-            <button
-              onClick={() => onAddToBag(item, activeFinish.name, item.category === 'footwear' ? 'EU 42' : item.category === 'clothing' ? 'M / 48' : 'One Size')}
-              className="cs-primary"
-              style={{ minHeight: '42px', padding: '10px 20px' }}
-            >
-              Add to Atelier Bag · {cost(item)} <ShoppingBag size={15} />
-            </button>
-            <button ref={closeRef} aria-label="Close 3D preview" onClick={close} className="cs-circle">
-              <X size={21} />
-            </button>
-          </div>
-        </div>
-
-        <div className="cs-dialog-view">
-          <Suspense fallback={<div className="cs-model-fallback" />}>
-            <ModelViewport
-              modelPath={item.modelPath}
-              concept={item.concept || site.concept}
-              accent={activeFinish.hex}
-              interactive
-              reducedMotion={reduced}
-              stage="detail"
-              label={item.name}
-              experience={customExperience}
-              hotspots={showHotspots ? item.hotspots || [] : []}
-            />
-          </Suspense>
-
-          {/* Collapsible Bottom Control Dock (Zero Central Viewport Occlusion) */}
-          <div
-            style={{
-              position: 'absolute',
-              bottom: '18px',
-              left: '50%',
-              transform: 'translateX(-50%)',
-              width: 'min(920px, 94%)',
-              zIndex: 10,
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-            }}
-          >
-            <button
-              type="button"
-              onClick={() => setHudCollapsed((v) => !v)}
-              style={{
-                background: '#141115',
-                color: '#faf2ef',
-                border: '1px solid rgba(255,255,255,0.2)',
-                borderBottom: hudCollapsed ? '1px solid rgba(255,255,255,0.2)' : 'none',
-                padding: '6px 14px',
-                fontSize: '10px',
-                letterSpacing: '0.18em',
-                textTransform: 'uppercase',
-                cursor: 'pointer',
-              }}
-            >
-              {hudCollapsed ? '▴ Show Studio Controls (H)' : '▾ Hide Controls · Zen Mode (H)'}
-            </button>
-            {!hudCollapsed && (
-              <div
-                style={{
-                  width: '100%',
-                  background: '#120f12f2',
-                  border: '1px solid rgba(255,255,255,0.22)',
-                  padding: '14px 20px',
-                  display: 'flex',
-                  flexWrap: 'wrap',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                  gap: '16px',
-                  fontSize: '11px',
-                }}
-              >
-                <div className="flex flex-wrap items-center gap-2">
-                  <span style={{ opacity: 0.6, letterSpacing: '0.12em', textTransform: 'uppercase' }}>Material Finish:</span>
-                  {realm.finishes.map((f) => (
-                    <button
-                      key={f.id}
-                      type="button"
-                      onClick={() => setActiveFinish(f)}
-                      style={{
-                        display: 'inline-flex',
-                        alignItems: 'center',
-                        gap: '6px',
-                        padding: '5px 10px',
-                        border: activeFinish.id === f.id ? `1px solid ${f.hex}` : '1px solid rgba(255,255,255,0.15)',
-                        background: activeFinish.id === f.id ? 'rgba(255,255,255,0.1)' : 'transparent',
-                        color: '#fff',
-                        cursor: 'pointer',
-                      }}
-                    >
-                      <span style={{ width: 10, height: 10, borderRadius: '50%', background: f.hex, display: 'inline-block' }} />
-                      {f.name}
-                    </button>
-                  ))}
-                </div>
-
-                <div className="flex flex-wrap items-center gap-2">
-                  <span style={{ opacity: 0.6, letterSpacing: '0.12em', textTransform: 'uppercase' }}>Studio Rig:</span>
-                  {(['fashion', 'jewelry', 'warm-gallery', 'architectural'] as LightingMood[]).map((m) => (
-                    <button
-                      key={m}
-                      type="button"
-                      onClick={() => setActiveMood(m)}
-                      style={{
-                        padding: '5px 10px',
-                        border: activeMood === m ? '1px solid var(--cs-accent)' : '1px solid rgba(255,255,255,0.15)',
-                        background: activeMood === m ? 'rgba(255,255,255,0.1)' : 'transparent',
-                        color: '#fff',
-                        cursor: 'pointer',
-                        textTransform: 'capitalize',
-                      }}
-                    >
-                      {m}
-                    </button>
-                  ))}
-                </div>
-
-                <div className="flex items-center gap-2">
-                  <button
-                    type="button"
-                    onClick={() => setShowHotspots((v) => !v)}
-                    style={{
-                      padding: '5px 10px',
-                      border: showHotspots ? '1px solid var(--cs-accent)' : '1px solid rgba(255,255,255,0.15)',
-                      background: showHotspots ? 'rgba(255,255,255,0.1)' : 'transparent',
-                      color: '#fff',
-                      cursor: 'pointer',
-                    }}
-                  >
-                    {showHotspots ? 'Hotspots: ON' : 'Hotspots: OFF'}
-                  </button>
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
-
-        <div className="cs-dialog-foot">
-          <p>
-            Drag to orbit 360° · scroll wheel to zoom · arrow keys to switch pieces.{' '}
-            {item.modelPath
-              ? '3D file supplied by store owner.'
-              : 'Explicitly labeled conceptual 3D silhouette; supply a licensed product GLB in /public/models/ for exact commercial geometry.'}
-          </p>
-          <div className="cs-dialog-arrows">
-            <button className="cs-circle" aria-label="Previous product" onClick={prev}>
-              <ChevronLeft />
-            </button>
-            <button className="cs-circle" aria-label="Next product" onClick={next}>
-              <ChevronRight />
-            </button>
-          </div>
-        </div>
-      </section>
-    </div>
-  );
-}
-
-export default function AutoCinematicSite() {
-  const reduced = useReducedMotion();
-  const storyRef = useRef<HTMLElement>(null);
-  const [selected, setSelected] = useState<number | null>(null);
-  const [activeCategory, setActiveCategory] = useState<CategoryRealmKey>('all');
+export function AutoCinematicSite() {
+  const [selectedCategory, setSelectedCategory] = useState<string>('All');
+  const [activeProduct, setActiveProduct] = useState<PhotorealShowcaseProduct>(PRODUCTS[0]);
+  const [activeCamera, setActiveCamera] = useState<CameraPreset>(SITE_CONFIG.cameraPreset);
+  const [activeLighting, setActiveLighting] = useState<LightingPreset>(SITE_CONFIG.lightingPreset);
   const [searchQuery, setSearchQuery] = useState('');
-  const [activeFinishIndex, setActiveFinishIndex] = useState(0);
-  const [customLightingMood, setCustomLightingMood] = useState<LightingMood | null>(null);
-  const [customCameraStyle, setCustomCameraStyle] = useState<CameraStyle | null>(null);
-  const [stageHudCollapsed, setStageHudCollapsed] = useState(false);
-  const [customModuleOverride, setCustomModuleOverride] = useState<SiteModule | null>(null);
-
-  // Shopping / Curation Bag Drawer State
-  const [bagOpen, setBagOpen] = useState(false);
-  const [bagItems, setBagItems] = useState<BagItem[]>([
-    { product: site.products[0], finish: 'Glacier Mint', size: 'EU 42', qty: 1 },
-  ]);
-  const [reservationSubmitted, setReservationSubmitted] = useState(false);
-  const [clientName, setClientName] = useState('');
-  const [clientEmail, setClientEmail] = useState('');
-
-  const activeRealm = categoryRealms[activeCategory];
-  const currentFinish = activeRealm.finishes[activeFinishIndex % activeRealm.finishes.length] || activeRealm.finishes[0];
-
-  const filteredProducts = useMemo(() => {
-    return site.products.filter((p) => {
-      const matchesCat = activeCategory === 'all' || p.category === activeCategory;
-      const matchesQuery =
-        !searchQuery.trim() ||
-        `${p.name} ${p.category || ''} ${p.description || ''} ${p.concept || ''}`.toLowerCase().includes(searchQuery.toLowerCase());
-      return matchesCat && matchesQuery;
-    });
-  }, [activeCategory, searchQuery]);
-
-  const featuredStageProduct = useMemo(() => {
-    if (activeCategory === 'all') return site.products[0];
-    return site.products.find((p) => p.category === activeCategory) || site.products[0];
-  }, [activeCategory]);
-
-  const stageExperience: ExperiencePreset = useMemo(
-    () => ({
-      ...activeRealm.experience,
-      mood: customLightingMood || activeRealm.experience.mood,
-      camera: customCameraStyle || activeRealm.experience.camera,
-    }),
-    [activeRealm, customLightingMood, customCameraStyle]
+  const [sortBy, setSortBy] = useState<'featured' | 'price-asc' | 'price-desc' | 'name'>('featured');
+  const [scrollProgress, setScrollProgress] = useState(0);
+  const [inspectProduct, setInspectProduct] = useState<PhotorealShowcaseProduct | null>(null);
+  const [cartItems, setCartItems] = useState<{ product: PhotorealShowcaseProduct; qty: number }[]>([]);
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const [heroStageMode, setHeroStageMode] = useState<'editorial-photo' | 'live-3d-glb'>(
+    'editorial-photo',
   );
+  const [reservationConfirmed, setReservationConfirmed] = useState(false);
 
-  const showDialog = selected !== null && site.products[selected];
+  const rootRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (reduced || !storyRef.current) return;
+    const handleScroll = () => {
+      const maxScroll = Math.max(
+        1,
+        document.documentElement.scrollHeight - window.innerHeight,
+      );
+      setScrollProgress(Math.min(1, Math.max(0, window.scrollY / maxScroll)));
+    };
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  useEffect(() => {
     const ctx = gsap.context(() => {
-      gsap.utils.toArray<HTMLElement>('[data-story-chapter]').forEach((el) => {
+      gsap.utils.toArray<HTMLElement>('.mv-reveal').forEach((el) => {
         gsap.fromTo(
           el,
-          { y: 55, opacity: 0.3 },
-          { y: 0, opacity: 1, ease: 'none', scrollTrigger: { trigger: el, start: 'top 88%', end: 'top 42%', scrub: 0.65 } }
+          { opacity: 0, y: 28 },
+          {
+            opacity: 1,
+            y: 0,
+            duration: 0.9,
+            ease: 'power3.out',
+            scrollTrigger: {
+              trigger: el,
+              start: 'top 86%',
+              toggleActions: 'play none none none',
+            },
+          },
         );
       });
-    }, storyRef);
+    }, rootRef);
     return () => ctx.revert();
-  }, [reduced]);
+  }, []);
 
-  const handleNext = () => setSelected((n) => (n === null ? 0 : (n + 1) % site.products.length));
-  const handlePrev = () => setSelected((n) => (n === null ? 0 : (n - 1 + site.products.length) % site.products.length));
-
-  const handleCategoryChange = (cat: CategoryRealmKey) => {
-    setActiveCategory(cat);
-    setActiveFinishIndex(0);
-    setCustomLightingMood(null);
-    setCustomCameraStyle(null);
-  };
-
-  const addToBag = (product: Product, finish = currentFinish.name, size = 'Standard') => {
-    setReservationSubmitted(false);
-    setBagItems((prev) => {
-      const idx = prev.findIndex((x) => x.product.id === product.id && x.finish === finish && x.size === size);
-      if (idx >= 0) {
-        const copy = [...prev];
-        copy[idx] = { ...copy[idx], qty: copy[idx].qty + 1 };
-        return copy;
-      }
-      return [...prev, { product, finish, size, qty: 1 }];
+  const filteredProducts = useMemo(() => {
+    return PRODUCTS.filter((product) => {
+      const matchesCategory =
+        selectedCategory === 'All' || product.category === selectedCategory;
+      const matchesQuery =
+        !searchQuery.trim() ||
+        product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        product.subtitle.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        product.category.toLowerCase().includes(searchQuery.toLowerCase());
+      return matchesCategory && matchesQuery;
+    }).sort((a, b) => {
+      const parsePrice = (p: string) => Number(p.replace(/[^0-9.]/g, '')) || 0;
+      if (sortBy === 'price-asc') return parsePrice(a.price) - parsePrice(b.price);
+      if (sortBy === 'price-desc') return parsePrice(b.price) - parsePrice(a.price);
+      if (sortBy === 'name') return a.name.localeCompare(b.name);
+      return 0;
     });
-    setBagOpen(true);
+  }, [selectedCategory, searchQuery, sortBy]);
+
+  const siteProductsForModules: SiteProduct[] = useMemo(
+    () =>
+      PRODUCTS.map((p) => ({
+        id: p.id,
+        name: p.name,
+        description: p.subtitle,
+        imagePath: p.image,
+        modelPath: p.modelPath,
+        price: Number(p.price.replace(/[^0-9.]/g, '')) || 0,
+        currency: 'USD',
+        concept: p.concept,
+        category: p.category,
+        specs: Object.fromEntries(p.specs.map((s) => [s.label, s.value])),
+      })),
+    [],
+  );
+
+  const handleSelectDiscipline = (category: string) => {
+    setSelectedCategory(category);
+    const match =
+      category === 'All'
+        ? PRODUCTS[0]
+        : PRODUCTS.find((p) => p.category === category) || PRODUCTS[0];
+    setActiveProduct(match);
+    if (match.cameraPreset) setActiveCamera(match.cameraPreset);
+    if (match.lightingPreset) setActiveLighting(match.lightingPreset);
   };
 
-  const removeFromBag = (index: number) => {
-    setBagItems((prev) => prev.filter((_, i) => i !== index));
+  const handleReserve = (product: PhotorealShowcaseProduct) => {
+    setReservationConfirmed(false);
+    setCartItems((prev) => {
+      const existing = prev.find((item) => item.product.id === product.id);
+      if (existing) {
+        return prev.map((item) =>
+          item.product.id === product.id ? { ...item, qty: item.qty + 1 } : item,
+        );
+      }
+      return [...prev, { product, qty: 1 }];
+    });
+    setIsDrawerOpen(true);
   };
 
-  const bagTotal = useMemo(() => {
-    return bagItems.reduce((sum, item) => sum + (item.product.price || 0) * item.qty, 0);
-  }, [bagItems]);
+  const handleRemoveCartItem = (productId: string) => {
+    setCartItems((prev) => prev.filter((item) => item.product.id !== productId));
+  };
 
-  const isDemo = site.brand.includes('DEMO');
+  const totalAllocationValue = useMemo(() => {
+    return cartItems.reduce((sum, item) => {
+      const numeric = Number(item.product.price.replace(/[^0-9.]/g, '')) || 0;
+      return sum + numeric * item.qty;
+    }, 0);
+  }, [cartItems]);
+
+  const totalBagCount = useMemo(
+    () => cartItems.reduce((sum, item) => sum + item.qty, 0),
+    [cartItems],
+  );
 
   return (
     <SmoothScroll>
-      <ScrollProgress />
-      <main
-        className={`cs-site cs-layout-${site.layout} cs-template-${site.template}`}
-        style={
-          {
-            '--cs-bg': activeRealm.background,
-            '--cs-text': activeRealm.foreground,
-            '--cs-accent': currentFinish.hex,
-            '--cs-secondary': activeRealm.secondary,
-            transition: reduced ? 'none' : 'background-color 0.6s ease, color 0.6s ease',
-          } as React.CSSProperties
-        }
-      >
-        <a href="#cs-collection" className="cs-skip">
-          Skip animation, go to products
-        </a>
-
-        {/* Strict 3-Zone Top Bar Contract */}
-        <header className="cs-header" id="cs-top">
-          <a href="#cs-top" className="cs-brand">
-            {site.brand}
+      <div ref={rootRef} className="studio-page mv-luxury-root">
+        <ScrollWorldBackground
+          products={PRODUCTS}
+          activeProductId={activeProduct.id}
+          onSelectProduct={(product) => {
+            setActiveProduct(product);
+            if (product.cameraPreset) setActiveCamera(product.cameraPreset);
+            if (product.lightingPreset) setActiveLighting(product.lightingPreset);
+          }}
+          onInspectProduct={(product) => setInspectProduct(product)}
+        />
+        <header className="studio-nav mv-header">
+        <div className="mv-header__left">
+          <a href="#top" className="mv-brand-mark">
+            <span className="mv-brand-mark__name">{SITE_CONFIG.brand}</span>
+            <span className="mv-brand-mark__sub">PARIS · MILANO · GENÈVE</span>
           </a>
-          <nav aria-label="Main navigation">
-            <a href="#cs-realms">Ateliers</a>
-            <a href="#cs-story">Craft</a>
-            <a href="#cs-collection">Collection</a>
-            <a href="#cs-atelier-faq">Client Services</a>
-          </nav>
+        </div>
+
+        <nav className="studio-nav-links" aria-label="Maison navigation">
+          <a href="#campaign-lookbook">Campaign</a>
+          <a href="#atelier-showcase">Interactive Atelier</a>
+          <a href="#craftsmanship-triptych">Savoir-Faire</a>
+          <a href="#collection-archive">Collection ({PRODUCTS.length})</a>
+        </nav>
+
+        <div className="mv-header__actions">
           <button
             type="button"
-            onClick={() => setBagOpen(true)}
-            className="cs-header-link"
-            style={{ background: 'transparent', border: 'none', borderBottom: '1px solid #ffffff6b', cursor: 'pointer', color: 'inherit' }}
-            aria-label={`Open Atelier Bag with ${bagItems.reduce((a, b) => a + b.qty, 0)} items`}
+            className="mv-bag-trigger"
+            onClick={() => setIsDrawerOpen(true)}
+            aria-label="Open Atelier Allocation Bag"
           >
-            Atelier Bag ({bagItems.reduce((a, b) => a + b.qty, 0)}) <ShoppingBag size={15} />
+            <span>ATELIER BAG</span>
+            <strong className="mv-bag-count">{totalBagCount}</strong>
           </button>
-        </header>
+        </div>
+      </header>
 
-        {/* 1. Cinematic Opening with Immersive 3D Visuals & Refined Typography */}
-        <section className="cs-hero" aria-label={site.headline + ' ' + site.emphasis}>
-          <div className="cs-hero-noise" aria-hidden="true" />
-          <div className="cs-orbit-outline" aria-hidden="true" />
-          <div className="cs-hero-content">
-            <AnimIn>
-              <div className="cs-eyebrow">
-                {activeRealm.kicker}
+      <main id="top">
+        {/* SECTION 1: PHOTOGRAPHY-LED EDITORIAL CAMPAIGN HERO */}
+        <section className="mv-hero" aria-label="Autumn Winter Atelier Campaign">
+          <div className="mv-hero__grid">
+            <div className="mv-hero__editorial-col">
+              <div className="mv-hero__eyebrow-row">
+                <span className="mv-mono-kicker">AUTUMN / WINTER ARCHIVE · EDITION 06</span>
+                <span className="mv-hero__verified-pill">PHOTOGRAPHY + KHRONOS PBR GLB</span>
               </div>
-            </AnimIn>
-            <motion.h1
-              initial={reduced ? false : { opacity: 0, y: 35 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: reduced ? 0 : 1.2, ease: [0.22, 1, 0.36, 1] }}
-            >
-              {site.headline}
-              <br />
-              <em>{site.emphasis}</em>
-            </motion.h1>
-            <AnimIn delay={0.18}>
-              <p className="cs-hero-summary">{activeRealm.subtitle}</p>
-              <div className="flex flex-wrap items-center gap-4">
-                <a href="#cs-realms" className="cs-primary">
-                  Enter 3D Atelier <ArrowRight size={17} />
-                </a>
-                <a
-                  href="#cs-collection"
-                  style={{
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    gap: '10px',
-                    padding: '14px 22px',
-                    border: '1px solid rgba(255,255,255,0.24)',
-                    borderRadius: '100px',
-                    fontSize: '12px',
-                    letterSpacing: '0.06em',
-                  }}
-                >
-                  Explore 6 Pieces <ArrowUpRight size={15} />
-                </a>
-              </div>
-            </AnimIn>
 
-            {/* Quick Discipline Switcher Pills inside Hero */}
-            <AnimIn delay={0.28}>
-              <div className="mt-10 flex flex-wrap items-center gap-2" role="group" aria-label="Switch active fashion discipline">
-                {categoryOrder.map((catKey) => {
-                  const r = categoryRealms[catKey];
-                  const active = activeCategory === catKey;
-                  return (
-                    <button
-                      key={catKey}
-                      type="button"
-                      onClick={() => handleCategoryChange(catKey)}
-                      style={{
-                        padding: '8px 16px',
-                        fontSize: '11px',
-                        letterSpacing: '0.12em',
-                        textTransform: 'uppercase',
-                        border: active ? `1px solid ${r.accent}` : '1px solid rgba(255,255,255,0.16)',
-                        background: active ? 'rgba(255,255,255,0.12)' : 'rgba(0,0,0,0.28)',
-                        color: active ? r.accent : 'inherit',
-                        cursor: 'pointer',
-                        transition: 'all 0.2s ease',
-                      }}
-                    >
-                      {r.label}
-                    </button>
-                  );
-                })}
-              </div>
-            </AnimIn>
-          </div>
+              <h1 className="mv-hero__headline">
+                Architectural form, <em>unapologetic</em> material truth.
+              </h1>
 
-          <div className="cs-hero-model" aria-hidden="true">
-            <Suspense fallback={<div className="cs-model-fallback" />}>
-              <ModelViewport
-                concept={featuredStageProduct?.concept || activeRealm.concept}
-                modelPath={featuredStageProduct?.modelPath}
-                accent={currentFinish.hex}
-                reducedMotion={reduced}
-                label="Hero conceptual object"
-                experience={stageExperience}
-              />
-            </Suspense>
-          </div>
-          <div className="cs-vertical-label">{site.category.toUpperCase()} / FOUR-DISCIPLINE SPATIAL STOREFRONT</div>
-          <a href="#cs-realms" className="cs-scroll">
-            SCROLL TO DISCOVER <ArrowDown size={17} />
-          </a>
-        </section>
-
-        {/* Subtle Editorial Marquee from Toolkit Creative Components */}
-        <Marquee
-          duration={34}
-          className="border-y border-white/15 py-4 text-[11px] uppercase tracking-[0.28em] opacity-75"
-          items={[
-            '01 · FOOTWEAR LAB — DIRECTIONAL RUNWAY LIGHTING',
-            '02 · DESIGNER CLOTHING — SCULPTURAL DRAPE MOTION',
-            '03 · HAUTE HORLOGERIE — MACRO METALLIC CALIBRATION',
-            '04 · LUXURY ACCESSORIES — TITANIUM & VERMEIL STUDIO',
-          ]}
-        />
-
-        {/* 2. Product-Specific 3D Experience Stage (Footwear, Clothing, Watches, Accessories) */}
-        <section
-          id="cs-realms"
-          aria-label="Interactive Category 3D Stage"
-          style={{
-            padding: 'clamp(80px, 10vw, 140px) clamp(22px, 7vw, 120px)',
-            borderBottom: '1px solid rgba(255,255,255,0.12)',
-          }}
-        >
-          <div className="mx-auto max-w-[1600px]">
-            <Reveal>
-              <div className="flex flex-wrap items-end justify-between gap-6 mb-10">
-                <div>
-                  <span className="cs-eyebrow">{activeRealm.kicker}</span>
-                  <h2 style={{ fontSize: 'clamp(38px, 5vw, 76px)', fontWeight: 480, letterSpacing: '-0.06em', lineHeight: 1.04, margin: '14px 0 0' }}>
-                    <WordReveal text={activeRealm.title} />
-                  </h2>
-                </div>
-                <div className="flex flex-wrap gap-2" role="tablist" aria-label="Product-specific 3D experience tabs">
-                  {(['footwear', 'clothing', 'watches', 'accessories'] as CategoryRealmKey[]).map((key) => {
-                    const tabRealm = categoryRealms[key];
-                    const isSelected = activeCategory === key;
-                    return (
-                      <button
-                        key={key}
-                        role="tab"
-                        aria-selected={isSelected}
-                        onClick={() => handleCategoryChange(key)}
-                        style={{
-                          padding: '11px 20px',
-                          fontSize: '11px',
-                          letterSpacing: '0.15em',
-                          textTransform: 'uppercase',
-                          border: isSelected ? `1px solid ${tabRealm.accent}` : '1px solid rgba(255,255,255,0.18)',
-                          background: isSelected ? tabRealm.accent : 'transparent',
-                          color: isSelected ? tabRealm.background : 'inherit',
-                          fontWeight: isSelected ? 700 : 500,
-                          cursor: 'pointer',
-                          transition: 'all 0.2s ease',
-                        }}
-                      >
-                        {tabRealm.label}
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-            </Reveal>
-
-            <div className="grid gap-8 lg:grid-cols-[1fr_1.45fr] items-stretch">
-              {/* Left Column: Editorial Story + Bespoke Specs */}
-              <SpotlightCard className="flex flex-col justify-between p-8 sm:p-10 rounded-none border-white/15 bg-white/[0.02]">
-                <div>
-                  <div className="flex items-center justify-between text-xs opacity-65 tracking-widest uppercase">
-                    <span>{featuredStageProduct.id}</span>
-                    <span>·</span>
-                    <span>Template: {activeRealm.templateRef}</span>
-                  </div>
-                  <h3 style={{ fontSize: 'clamp(28px, 3vw, 44px)', fontWeight: 480, letterSpacing: '-0.04em', margin: '18px 0 12px' }}>
-                    {featuredStageProduct.name}
-                  </h3>
-                  <p style={{ fontSize: '14px', lineHeight: 1.85, opacity: 0.75, marginBottom: '28px' }}>{featuredStageProduct.description}</p>
-
-                  {featuredStageProduct.specs && (
-                    <div className="space-y-3 border-t border-white/15 pt-5">
-                      {Object.entries(featuredStageProduct.specs).map(([k, v]) => (
-                        <div key={k} className="flex items-center justify-between text-xs border-b border-white/10 pb-2.5">
-                          <span className="opacity-60 uppercase tracking-wider">{k}</span>
-                          <strong className="font-medium">{v}</strong>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-
-                <div className="mt-8 pt-6 border-t border-white/15 flex flex-wrap items-center justify-between gap-4">
-                  <div>
-                    <div className="text-[10px] uppercase tracking-widest opacity-55">Atelier Valuation</div>
-                    <div className="text-xl font-semibold tabular-nums" style={{ color: currentFinish.hex }}>
-                      {cost(featuredStageProduct)}
-                    </div>
-                  </div>
-                  <div className="flex flex-wrap gap-3">
-                    <button
-                      type="button"
-                      onClick={() => {
-                        const idx = site.products.findIndex((p) => p.id === featuredStageProduct.id);
-                        setSelected(idx >= 0 ? idx : 0);
-                      }}
-                      style={{
-                        padding: '12px 18px',
-                        border: '1px solid rgba(255,255,255,0.28)',
-                        background: 'transparent',
-                        color: 'inherit',
-                        fontSize: '11px',
-                        letterSpacing: '0.12em',
-                        textTransform: 'uppercase',
-                        cursor: 'pointer',
-                      }}
-                    >
-                      Full-Screen 3D <Eye size={14} className="inline ml-1" />
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => addToBag(featuredStageProduct, currentFinish.name)}
-                      className="cs-primary"
-                      style={{ minHeight: '44px', padding: '10px 22px', gap: '12px' }}
-                    >
-                      Reserve Piece <ShoppingBag size={15} />
-                    </button>
-                  </div>
-                </div>
-              </SpotlightCard>
-
-              {/* Right Column: Interactive 3D Stage with Collapsible Bottom Dock */}
-              <div
-                style={{
-                  position: 'relative',
-                  minHeight: '540px',
-                  border: '1px solid rgba(255,255,255,0.18)',
-                  background: `radial-gradient(ellipse at 55% 45%, color-mix(in srgb, ${currentFinish.hex} 18%, transparent), transparent 65%), ${activeRealm.background}`,
-                  overflow: 'hidden',
-                }}
-              >
-                <div
-                  style={{
-                    position: 'absolute',
-                    top: '18px',
-                    left: '22px',
-                    right: '22px',
-                    zIndex: 5,
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
-                    fontSize: '10px',
-                    letterSpacing: '0.2em',
-                    textTransform: 'uppercase',
-                    opacity: 0.72,
-                    pointerEvents: 'none',
-                  }}
-                >
-                  <span>
-                    3D SILHOUETTE: {featuredStageProduct.concept?.toUpperCase()} · {stageExperience.mood.toUpperCase()} RIG
-                  </span>
-                  <span>DRAG TO ROTATE · SCROLL TO ZOOM</span>
-                </div>
-
-                <Suspense fallback={<div className="cs-model-fallback" />}>
-                  <ModelViewport
-                    modelPath={featuredStageProduct.modelPath}
-                    concept={featuredStageProduct.concept || activeRealm.concept}
-                    accent={currentFinish.hex}
-                    interactive
-                    reducedMotion={reduced}
-                    stage="detail"
-                    label={featuredStageProduct.name}
-                    experience={stageExperience}
-                    hotspots={featuredStageProduct.hotspots || []}
-                  />
-                </Suspense>
-
-                {/* Unified Bottom Control Dock */}
-                <div
-                  style={{
-                    position: 'absolute',
-                    bottom: '14px',
-                    left: '50%',
-                    transform: 'translateX(-50%)',
-                    width: 'min(760px, 94%)',
-                    zIndex: 8,
-                    display: 'flex',
-                    flexDirection: 'column',
-                    alignItems: 'center',
-                  }}
-                >
-                  <button
-                    type="button"
-                    onClick={() => setStageHudCollapsed((v) => !v)}
-                    style={{
-                      background: '#110e10',
-                      color: '#faf2ef',
-                      border: '1px solid rgba(255,255,255,0.2)',
-                      borderBottom: stageHudCollapsed ? '1px solid rgba(255,255,255,0.2)' : 'none',
-                      padding: '4px 12px',
-                      fontSize: '9px',
-                      letterSpacing: '0.18em',
-                      textTransform: 'uppercase',
-                      cursor: 'pointer',
-                    }}
-                  >
-                    {stageHudCollapsed ? '▴ Expand Studio Controls' : '▾ Collapse Studio Dock'}
-                  </button>
-                  {!stageHudCollapsed && (
-                    <div
-                      style={{
-                        width: '100%',
-                        background: '#110e10ee',
-                        border: '1px solid rgba(255,255,255,0.2)',
-                        padding: '10px 14px',
-                        display: 'flex',
-                        flexWrap: 'wrap',
-                        alignItems: 'center',
-                        justifyContent: 'space-between',
-                        gap: '12px',
-                        fontSize: '10px',
-                      }}
-                    >
-                      <div className="flex flex-wrap items-center gap-1.5">
-                        <span className="opacity-60 uppercase tracking-wider mr-1">Finish:</span>
-                        {activeRealm.finishes.map((f, idx) => (
-                          <button
-                            key={f.id}
-                            type="button"
-                            onClick={() => setActiveFinishIndex(idx)}
-                            style={{
-                              display: 'inline-flex',
-                              alignItems: 'center',
-                              gap: '5px',
-                              padding: '4px 9px',
-                              border: currentFinish.id === f.id ? `1px solid ${f.hex}` : '1px solid rgba(255,255,255,0.14)',
-                              background: currentFinish.id === f.id ? 'rgba(255,255,255,0.1)' : 'transparent',
-                              color: 'inherit',
-                              cursor: 'pointer',
-                            }}
-                          >
-                            <span style={{ width: 8, height: 8, borderRadius: '50%', background: f.hex }} />
-                            {f.name}
-                          </button>
-                        ))}
-                      </div>
-
-                      <div className="flex flex-wrap items-center gap-1.5">
-                        <span className="opacity-60 uppercase tracking-wider mr-1">Lighting:</span>
-                        {(['fashion', 'jewelry', 'warm-gallery', 'automotive'] as LightingMood[]).map((m) => (
-                          <button
-                            key={m}
-                            type="button"
-                            onClick={() => setCustomLightingMood(m)}
-                            style={{
-                              padding: '4px 8px',
-                              border: stageExperience.mood === m ? `1px solid ${currentFinish.hex}` : '1px solid rgba(255,255,255,0.14)',
-                              background: stageExperience.mood === m ? 'rgba(255,255,255,0.1)' : 'transparent',
-                              color: 'inherit',
-                              cursor: 'pointer',
-                              textTransform: 'capitalize',
-                            }}
-                          >
-                            {m}
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* 3. GSAP ScrollTrigger 3-Act Editorial Narrative */}
-        <section ref={storyRef} id="cs-story" className="cs-story" aria-label="Brand story">
-          <div className="cs-story-intro">
-            <AnimIn>
-              <div className="cs-eyebrow">A STORY IN THREE ACTS</div>
-              <h2>
-                Beyond what <em>you expect.</em>
-              </h2>
-            </AnimIn>
-          </div>
-          <div className="cs-story-chapters">
-            {site.chapters.map((title, i) => (
-              <div key={title} className="cs-story-chapter" data-story-chapter>
-                <div className="cs-story-count">
-                  0{i + 1} <span>/ 0{site.chapters.length}</span>
-                </div>
-                <div>
-                  <h3>{title}</h3>
-                  <p>
-                    {i === 0
-                      ? site.summary
-                      : i === 1
-                      ? 'Every movement is intentional. From bias-cut cashmere folds to directional runway shadow falloff, each surface responds to light and touch.'
-                      : 'Precision horology and architectural titanium eyewear calibrated for both desktop studio inspection and responsive mobile browsing.'}
-                  </p>
-                </div>
-                <div className="cs-story-line" />
-              </div>
-            ))}
-          </div>
-        </section>
-
-        {/* 4. Pre-Collection Composable ExperienceModules (Filmstrip & ProductRail) */}
-        <ExperienceModules slot="pre-collection"
-          modules={site.recipe}
-          brand={site.brand}
-          category={site.category}
-          summary={site.summary}
-          chapters={site.chapters}
-          products={site.products}
-          onOpen={setSelected}
-          reducedMotion={reduced}
-        />
-
-        {/* 5. Interactive Collection Discovery & Filtering Interface */}
-        <section id="cs-collection" className="cs-collection">
-          <AnimIn className="cs-collection-head">
-            <div>
-              <div className="cs-eyebrow">THE COLLECTION / EXPLORE IN 3D</div>
-              <h2>
-                Every angle, <em>a new story.</em>
-              </h2>
-            </div>
-            <div className="space-y-4 w-full max-w-[440px]">
-              <p style={{ margin: 0 }}>
-                Filter by atelier discipline or inspect any piece in interactive 3D. Conceptual silhouettes are explicitly labeled until owner-supplied GLBs are added.
+              <p className="mv-hero__lead">
+                Created for collectors who reject synthetic compromises. Inspect double-faced
+                Biella cashmere through high-resolution campaign plates, or orbit 104,765-vertex
+                horological and footwear digital twins under physically calibrated studio light.
               </p>
-              <Input
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search footwear, cashmere, tourbillon, eyewear..."
-                aria-label="Search collection pieces"
-                className="bg-black/30 border-white/20 text-white placeholder:text-white/45"
-              />
-            </div>
-          </AnimIn>
 
-          {/* Animated Category Filter Bar */}
-          <div className="mb-10 flex flex-wrap items-center justify-between gap-4 border-y border-white/15 py-4">
-            <div className="flex flex-wrap gap-2" role="group" aria-label="Filter collection by category">
-              {categoryOrder.map((catKey) => {
-                const r = categoryRealms[catKey];
-                const isSelected = activeCategory === catKey;
-                const count = catKey === 'all' ? site.products.length : site.products.filter((p) => p.category === catKey).length;
-                return (
-                  <button
-                    key={catKey}
-                    type="button"
-                    onClick={() => handleCategoryChange(catKey)}
-                    style={{
-                      padding: '8px 16px',
-                      fontSize: '11px',
-                      letterSpacing: '0.14em',
-                      textTransform: 'uppercase',
-                      border: isSelected ? `1px solid ${currentFinish.hex}` : '1px solid rgba(255,255,255,0.14)',
-                      background: isSelected ? currentFinish.hex : 'transparent',
-                      color: isSelected ? activeRealm.background : 'inherit',
-                      fontWeight: isSelected ? 700 : 500,
-                      cursor: 'pointer',
-                    }}
-                  >
-                    {r.label} ({count})
-                  </button>
-                );
-              })}
-            </div>
-            <div className="text-xs opacity-65 tabular-nums">
-              Showing {filteredProducts.length} of {site.products.length} archive pieces
-            </div>
-          </div>
+              <div className="mv-hero__cta-row">
+                <a href="#atelier-showcase" className="studio-button studio-button--primary">
+                  Enter Interactive Atelier
+                </a>
+                <a href="#collection-archive" className="studio-button studio-button--ghost">
+                  Explore 6 Archive Pieces
+                </a>
+              </div>
 
-          <div className="cs-products">
-            {filteredProducts.map((product, i) => {
-              const globalIndex = site.products.findIndex((p) => p.id === product.id);
-              const idx = globalIndex >= 0 ? globalIndex : i;
-              return (
-                <AnimIn key={product.id} className="cs-product" delay={Math.min(i * 0.07, 0.3)}>
-                  <button className="cs-product-visual" aria-label={`Open 3D view of ${product.name}`} onClick={() => setSelected(idx)}>
-                    {product.imagePath ? (
-                      <img src={product.imagePath} alt={`${product.name} studio visual`} loading="lazy" referrerPolicy="no-referrer" />
-                    ) : (
-                      <div className="cs-product-art" aria-hidden="true">
-                        <div className="cs-product-art-ring" />
-                        <Box size={56} strokeWidth={0.8} />
+              <div className="mv-hero__disciplines" role="navigation" aria-label="House disciplines">
+                {(['Footwear', 'Designer Clothing', 'Watches', 'Accessories'] as const).map(
+                  (disc, idx) => {
+                    const rep = PRODUCTS.find((p) => p.category === disc)!;
+                    const hasGlb = isVerifiedGlbPath(rep.modelPath);
+                    return (
+                      <a
+                        key={disc}
+                        href="#atelier-showcase"
+                        className={`mv-discipline-card ${
+                          activeProduct.category === disc ? 'is-active' : ''
+                        }`}
+                        onClick={() => handleSelectDiscipline(disc)}
+                      >
+                        <div className="mv-discipline-card__top">
+                          <span className="mv-mono-kicker">0{idx + 1}</span>
+                          <span className="mv-discipline-card__medium">
+                            {hasGlb ? '3D GLB + PHOTO' : '2.35× PHOTO LOUPE'}
+                          </span>
+                        </div>
+                        <strong>{disc}</strong>
+                        <span>{rep.name}</span>
+                      </a>
+                    );
+                  },
+                )}
+              </div>
+            </div>
+
+            <div className="mv-hero__visual-col">
+              <div className="mv-hero__stage-switcher">
+                <button
+                  type="button"
+                  className={heroStageMode === 'editorial-photo' ? 'is-active' : ''}
+                  onClick={() => setHeroStageMode('editorial-photo')}
+                >
+                  Campaign Photography Plate
+                </button>
+                <button
+                  type="button"
+                  className={heroStageMode === 'live-3d-glb' ? 'is-active' : ''}
+                  onClick={() => setHeroStageMode('live-3d-glb')}
+                >
+                  Live 3D Horology &amp; Footwear GLB
+                </button>
+              </div>
+
+              {heroStageMode === 'editorial-photo' ? (
+                <div className="mv-hero__photo-composition">
+                  <figure className="mv-hero__primary-plate">
+                    <img
+                      src="/images/hero-campaign-editorial.jpg"
+                      alt="Tailored navy-charcoal wool suiting and chronograph watch on architectural stone stairs"
+                    />
+                    <figcaption className="mv-hero__plate-caption">
+                      <div>
+                        <span className="mv-mono-kicker">CAMPAIGN PLATE I · MILANO</span>
+                        <strong>Tailored Wool &amp; Calibre MV-01 Chronograph</strong>
                       </div>
-                    )}
-                    <span className="cs-product-mode">
-                      {product.category?.toUpperCase()} · {product.modelPath ? '3D MODEL' : `3D CONCEPT (${product.concept?.toUpperCase()})`}
-                    </span>
-                    <span className="cs-product-action">
-                      INSPECT IN 3D <MoveUpRight size={17} />
-                    </span>
-                  </button>
-                  <div className="cs-product-meta">
-                    <div>
-                      <span className="cs-product-id">
-                        0{idx + 1} / {product.id} · {product.category || site.category}
-                      </span>
-                      <h3>{product.name}</h3>
-                      <p>{product.description || 'Explore the details in 3D.'}</p>
-                    </div>
-                    <div className="cs-product-price">
-                      <div className="tabular-nums font-semibold">{cost(product)}</div>
                       <button
                         type="button"
-                        onClick={() => addToBag(product)}
-                        style={{
-                          marginTop: '12px',
-                          background: 'transparent',
-                          border: '1px solid rgba(255,255,255,0.28)',
-                          color: 'inherit',
-                          padding: '6px 11px',
-                          fontSize: '10px',
-                          letterSpacing: '0.12em',
-                          textTransform: 'uppercase',
-                          cursor: 'pointer',
-                          display: 'inline-flex',
-                          alignItems: 'center',
-                          gap: '6px',
+                        className="mv-inline-link"
+                        onClick={() => {
+                          const watch = PRODUCTS.find((p) => p.id === 'mv-watch-03')!;
+                          setActiveProduct(watch);
+                          setHeroStageMode('live-3d-glb');
                         }}
                       >
-                        <Plus size={12} /> Add to Bag
+                        Inspect Watch in 3D GLB →
                       </button>
-                      {product.purchaseUrl && (
-                        <a
-                          href={product.purchaseUrl}
-                          target="_blank"
-                          rel="noopener noreferrer sponsored"
-                          aria-label={`View purchase options for ${product.name}`}
-                        >
-                          Purchase <ArrowUpRight size={13} />
-                        </a>
-                      )}
-                    </div>
+                    </figcaption>
+                  </figure>
+
+                  <figure className="mv-hero__secondary-plate">
+                    <img
+                      src="/images/editorial-coat-drape.jpg"
+                      alt="Nocturne Double-Faced Camel Cashmere Coat on architectural granite steps"
+                    />
+                    <figcaption>
+                      <span className="mv-mono-kicker">LOOK 02 · BIELLA CASHMERE</span>
+                      <strong>Nocturne Double-Faced Coat — $3,450</strong>
+                    </figcaption>
+                  </figure>
+                </div>
+              ) : (
+                <div className="mv-hero__live-glb-frame">
+                  <ModelViewport
+                    modelPath={
+                      isVerifiedGlbPath(activeProduct.modelPath)
+                        ? activeProduct.modelPath
+                        : '/models/atelier-chronograph-watch.glb'
+                    }
+                    concept={activeProduct.concept}
+                    accentColor={activeProduct.accentColor}
+                    secondaryColor={activeProduct.secondaryColor}
+                    cameraPreset={activeCamera}
+                    lightingPreset={activeLighting}
+                    posterImage={activeProduct.image}
+                    title={
+                      isVerifiedGlbPath(activeProduct.modelPath)
+                        ? activeProduct.name
+                        : 'Chronographe Calibre MV-01'
+                    }
+                    subtitle="Verified Khronos PBR GLB · Real-Time Studio IBL"
+                    scrollProgress={scrollProgress}
+                    allowProceduralConcept={false}
+                    provenanceLabel="VERIFIED KHRONOS PBR GLB · CC-BY-4.0"
+                  />
+                  <div className="mv-hero__glb-quickpick">
+                    {PRODUCTS.filter((p) => isVerifiedGlbPath(p.modelPath)).map((p) => (
+                      <button
+                        key={p.id}
+                        type="button"
+                        className={activeProduct.id === p.id ? 'is-active' : ''}
+                        onClick={() => setActiveProduct(p)}
+                      >
+                        <span>{p.category}</span>
+                        <strong>{p.name}</strong>
+                      </button>
+                    ))}
                   </div>
-                </AnimIn>
+                </div>
+              )}
+            </div>
+          </div>
+        </section>
+
+        {/* SECTION 2: BESPOKE CATEGORY SHOWCASE (FOOTWEAR / CLOTHING / WATCHES / ACCESSORIES) */}
+        <section
+          id="atelier-showcase"
+          className="mv-section mv-reveal"
+          aria-label="Interactive Discipline Showcase"
+        >
+          <div className="mv-section__header">
+            <div>
+              <span className="mv-mono-kicker">
+                DISCIPLINE-SPECIFIC INSPECTION · REAL GLB &amp; 2.35× OPTICAL LOUPE
+              </span>
+              <h2 className="mv-section__title">
+                Four disciplines, four bespoke visual mediums.
+              </h2>
+            </div>
+            <p className="mv-section__desc">
+              Select a piece below. Footwear, Horology, and Optical frames load verified PBR{' '}
+              <code>.glb</code> assets with dynamic IBL studio lighting; Designer Clothing, Fine
+              Jewelry, and Leather Goods engage our 2.35× optical photography loupe.
+            </p>
+          </div>
+
+          <div className="mv-product-strip" role="tablist" aria-label="Select archive piece">
+            {PRODUCTS.map((item, idx) => {
+              const hasGlb = isVerifiedGlbPath(item.modelPath);
+              return (
+                <button
+                  key={item.id}
+                  type="button"
+                  role="tab"
+                  aria-selected={activeProduct.id === item.id}
+                  className={`mv-strip-tab ${activeProduct.id === item.id ? 'is-active' : ''}`}
+                  onClick={() => setActiveProduct(item)}
+                >
+                  <img src={item.image} alt={item.name} loading="lazy" />
+                  <div className="mv-strip-tab__meta">
+                    <span className="mv-mono-kicker">
+                      0{idx + 1} · {item.category.toUpperCase()}
+                    </span>
+                    <strong>{item.name}</strong>
+                    <small>{hasGlb ? 'Verified 3D GLB + Photo' : 'Editorial Photo + Loupe'}</small>
+                  </div>
+                </button>
               );
             })}
           </div>
 
-          {filteredProducts.length === 0 && (
-            <div className="py-16 text-center">
-              <p className="text-sm opacity-70 mb-4">No archive pieces matched your filter criteria.</p>
-              <button
-                type="button"
-                onClick={() => {
-                  setActiveCategory('all');
-                  setSearchQuery('');
-                }}
-                className="cs-primary"
-              >
-                Reset Archive Filters <RotateCcw size={15} />
-              </button>
-            </div>
-          )}
-
-          {isDemo && (
-            <div className="cs-demo-notice">
-              DEMO COLLECTION — Conceptual 3D silhouettes and studio SVG posters are explicitly labeled. Supply licensed .glb models in /public/models/ and verified merchant checkout URLs before commercial publication.
-            </div>
-          )}
+          <PhotorealProductShowcase
+            product={activeProduct}
+            activeLighting={activeLighting}
+            onLightingChange={setActiveLighting}
+            onReserveProduct={handleReserve}
+            onInspectProduct={(p) => setInspectProduct(p)}
+            scrollProgress={scrollProgress}
+          />
         </section>
 
-        {/* 6. Post-Collection Composable ExperienceModules (Compare & Spotlight) + Live Module Explorer */}
-        <ExperienceModules slot="post-collection"
-          modules={site.recipe}
-          brand={site.brand}
-          category={site.category}
-          summary={site.summary}
-          chapters={site.chapters}
-          products={site.products}
-          onOpen={setSelected}
-          reducedMotion={reduced}
+        {/* SECTION 3: EDITORIAL SAVOIR-FAIRE & CRAFTSMANSHIP TRIPTYCH */}
+        <section
+          id="craftsmanship-triptych"
+          className="mv-section mv-triptych-section mv-reveal"
+          aria-label="Editorial Savoir-Faire Triptych"
+        >
+          <div className="mv-section__header">
+            <div>
+              <span className="mv-mono-kicker">SAVOIR-FAIRE · MATERIAL PROVENANCE</span>
+              <h2 className="mv-section__title">
+                Photographed in natural shadow, never simulated.
+              </h2>
+            </div>
+            <p className="mv-section__desc">
+              True luxury rests in the tension of a hand-picked lapel, the brushed grain of
+              double-faced cashmere, and the mirror bevel of a chronograph bridge.
+            </p>
+          </div>
+
+          <div className="mv-triptych-grid" id="campaign-lookbook">
+            <article className="mv-triptych-card mv-triptych-card--tall">
+              <div className="mv-triptych-card__media">
+                <img
+                  src="/images/editorial-coat-drape.jpg"
+                  alt="Camel double-faced wool-cashmere coat with wide peak lapels"
+                  loading="lazy"
+                />
+              </div>
+              <div className="mv-triptych-card__body">
+                <span className="mv-mono-kicker">CHAPTER I · BIELLA MILL ARCHIVE</span>
+                <h3>Unlined Double-Faced Cashmere Architecture</h3>
+                <p>
+                  By splitting two ply-woven layers of virgin wool and Inner Mongolian cashmere by
+                  hand, our tailors fold and blind-stitch every seam edge internally—yielding a
+                  640 gsm overcoat that moves like liquid shadow.
+                </p>
+                <button
+                  type="button"
+                  className="mv-inline-link"
+                  onClick={() => {
+                    const coat = PRODUCTS.find((p) => p.id === 'mv-clothing-02')!;
+                    setActiveProduct(coat);
+                    document
+                      .getElementById('atelier-showcase')
+                      ?.scrollIntoView({ behavior: 'smooth' });
+                  }}
+                >
+                  Inspect Coat in 2.35× Textile Loupe →
+                </button>
+              </div>
+            </article>
+
+            <article className="mv-triptych-card">
+              <div className="mv-triptych-card__media">
+                <img
+                  src="/images/editorial-coat-detail.jpg"
+                  alt="Warm tonal cashmere and wool knitwear archive on atelier rail"
+                  loading="lazy"
+                />
+              </div>
+              <div className="mv-triptych-card__body">
+                <span className="mv-mono-kicker">CHAPTER II · TONAL PALETTE</span>
+                <h3>Undyed Camel, Espresso &amp; Raw Travertine</h3>
+                <p>
+                  Our colour library draws exclusively from raw mineral and fleece tones, ensuring
+                  every garment ages with quiet patina across decades.
+                </p>
+              </div>
+            </article>
+
+            <article className="mv-triptych-card">
+              <div className="mv-triptych-card__media">
+                <img
+                  src="/images/editorial-bomber-studio.jpg"
+                  alt="Terracotta-bronze technical silk jacket on wooden hanger"
+                  loading="lazy"
+                />
+              </div>
+              <div className="mv-triptych-card__body">
+                <span className="mv-mono-kicker">CHAPTER III · TECHNICAL SILK</span>
+                <h3>High-Twist Japanese Filament Outerwear</h3>
+                <p>
+                  Woven in Fukui from high-density memory silk-nylon that repels mist while
+                  holding sculptural sleeve volume under directional studio light.
+                </p>
+              </div>
+            </article>
+          </div>
+        </section>
+
+        {/* SECTION 4: PRE-COLLECTION TOOLKIT EXPERIENCE MODULES */}
+        <ExperienceModules slot="pre-collection"
+          modules={['editorial', 'process', 'compare', 'metrics']}
+          brand={SITE_CONFIG.brand}
+          category="fashion"
+          summary={SITE_CONFIG.subtitle}
+          chapters={[
+            'Photogrammetry-grade 3D footwear with Italian suede and Vibram architecture',
+            'Double-faced 640 gsm Biella cashmere inspected via 2.35x optical textile loupe',
+            '13-mesh column-wheel horology and Sabae beta-titanium optical engineering',
+          ]}
+          products={siteProductsForModules}
+          onOpen={(idx) => setInspectProduct(PRODUCTS[idx] || PRODUCTS[0])}
+          reducedMotion={false}
         />
 
-        {/* Additional Composable Module Switcher (Editorial, Material, Manifesto, CategoryIndex, Process, Metrics) */}
+        {/* SECTION 5: COMPLETE COLLECTION ARCHIVE & DISCOVERY GRID */}
         <section
-          aria-label="Additional Atelier Story Modules"
-          style={{
-            padding: '60px clamp(22px, 8vw, 150px) 20px',
-            borderTop: '1px solid rgba(255,255,255,0.12)',
-          }}
+          id="collection-archive"
+          className="mv-section mv-archive-section mv-reveal"
+          aria-label="Complete Collection Archive"
         >
-          <div className="flex flex-wrap items-center justify-between gap-4 mb-4">
-            <span className="cs-eyebrow">EXTENDED EDITORIAL MODULES · COMPOSABLE ARCHITECTURE</span>
-            <div className="flex flex-wrap gap-2">
-              {(['material', 'category-index', 'manifesto', 'editorial', 'process', 'metrics'] as SiteModule[]).map((mod) => {
-                const active = (customModuleOverride || 'material') === mod;
-                return (
+          <div className="mv-section__header">
+            <div>
+              <span className="mv-mono-kicker">AUTUMN / WINTER ARCHIVE · 06 PIECES</span>
+              <h2 className="mv-section__title">Complete Collection &amp; Provenance Index</h2>
+            </div>
+
+            <div className="mv-archive-controls">
+              <div className="mv-category-pills" role="tablist" aria-label="Filter by discipline">
+                {CATEGORIES.map((cat) => (
                   <button
-                    key={mod}
+                    key={cat}
                     type="button"
-                    onClick={() => setCustomModuleOverride(mod)}
-                    style={{
-                      padding: '6px 12px',
-                      fontSize: '10px',
-                      letterSpacing: '0.14em',
-                      textTransform: 'uppercase',
-                      border: active ? `1px solid ${currentFinish.hex}` : '1px solid rgba(255,255,255,0.15)',
-                      background: active ? 'rgba(255,255,255,0.1)' : 'transparent',
-                      color: 'inherit',
-                      cursor: 'pointer',
+                    role="tab"
+                    aria-selected={selectedCategory === cat}
+                    className={selectedCategory === cat ? 'is-active' : ''}
+                    onClick={() => setSelectedCategory(cat)}
+                  >
+                    {cat}
+                  </button>
+                ))}
+              </div>
+
+              <div className="mv-search-sort">
+                <input
+                  type="search"
+                  placeholder="Search silhouette or material..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  aria-label="Search archive pieces"
+                />
+                <select
+                  value={sortBy}
+                  onChange={(e) =>
+                    setSortBy(e.target.value as 'featured' | 'price-asc' | 'price-desc' | 'name')
+                  }
+                  aria-label="Sort collection"
+                >
+                  <option value="featured">Curated Order</option>
+                  <option value="price-asc">Price: Low to High</option>
+                  <option value="price-desc">Price: High to Low</option>
+                  <option value="name">Alphabetical</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <div className="mv-collection-grid">
+            {filteredProducts.map((product) => {
+              const hasGlb = isVerifiedGlbPath(product.modelPath);
+              return (
+                <article key={product.id} className="mv-archive-card">
+                  <div
+                    className="mv-archive-card__media"
+                    onClick={() => setInspectProduct(product)}
+                    role="button"
+                    tabIndex={0}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' || e.key === ' ') setInspectProduct(product);
                     }}
                   >
-                    {mod}
-                  </button>
-                );
-              })}
-            </div>
+                    <img src={product.image} alt={product.name} loading="lazy" />
+                    <div className="mv-archive-card__badges">
+                      <span className="mv-badge-category">{product.category}</span>
+                      <span className={`mv-badge-medium ${hasGlb ? 'is-glb' : 'is-photo'}`}>
+                        {hasGlb ? `3D GLB (${product.glbSpecLabel})` : '2.35× Photo Loupe'}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="mv-archive-card__body">
+                    <div className="mv-archive-card__title-row">
+                      <h3>{product.name}</h3>
+                      <strong className="mv-archive-card__price">{product.price}</strong>
+                    </div>
+                    <p className="mv-archive-card__sub">{product.subtitle}</p>
+
+                    <div className="mv-archive-card__specs-mini">
+                      {product.specs.slice(0, 2).map((s) => (
+                        <div key={s.label}>
+                          <span>{s.label}</span>
+                          <strong>{s.value}</strong>
+                        </div>
+                      ))}
+                    </div>
+
+                    <div className="mv-archive-card__actions">
+                      <button
+                        type="button"
+                        className="studio-button studio-button--primary"
+                        onClick={() => handleReserve(product)}
+                      >
+                        Reserve Piece
+                      </button>
+                      <button
+                        type="button"
+                        className="studio-button studio-button--ghost"
+                        onClick={() => {
+                          setActiveProduct(product);
+                          document
+                            .getElementById('atelier-showcase')
+                            ?.scrollIntoView({ behavior: 'smooth' });
+                        }}
+                      >
+                        Load in Stage
+                      </button>
+                    </div>
+                  </div>
+                </article>
+              );
+            })}
           </div>
         </section>
-        <ExperienceModules
-          slot="pre-collection"
-          modules={[customModuleOverride || 'material']}
-          brand={site.brand}
-          category={site.category}
-          summary={site.summary}
-          chapters={site.chapters}
-          products={site.products}
-          onOpen={setSelected}
-          reducedMotion={reduced}
+
+        {/* SECTION 6: POST-COLLECTION TOOLKIT EXPERIENCE MODULES */}
+        <ExperienceModules slot="post-collection"
+          modules={['editorial', 'process', 'compare', 'metrics']}
+          brand={SITE_CONFIG.brand}
+          category="fashion"
+          summary={SITE_CONFIG.subtitle}
+          chapters={[
+            'Photogrammetry-grade 3D footwear with Italian suede and Vibram architecture',
+            'Double-faced 640 gsm Biella cashmere inspected via 2.35x optical textile loupe',
+            '13-mesh column-wheel horology and Sabae beta-titanium optical engineering',
+          ]}
+          products={siteProductsForModules}
+          onOpen={(idx) => setInspectProduct(PRODUCTS[idx] || PRODUCTS[0])}
+          reducedMotion={false}
         />
 
-        {/* 7. Parallax Editorial Statement & Craftsmanship Proof */}
-        <ParallaxSection distance={35}>
-          <section className="cs-statement" aria-label="Design philosophy">
-            <AnimIn>
-              <span className="cs-eyebrow">DIGITAL CRAFT / IN MOTION</span>
-              <blockquote>
-                Not more effects.
-                <br />
-                <em>More feeling.</em>
-              </blockquote>
-              <div className="cs-statement-rule" />
-              <div className="mt-14 grid max-w-3xl mx-auto grid-cols-3 gap-6 text-center">
-                <div>
-                  <div className="text-3xl sm:text-4xl font-light tabular-nums" style={{ color: currentFinish.hex }}>
-                    <AnimatedCounter value={4} suffix=" Ateliers" />
-                  </div>
-                  <div className="mt-2 text-[10px] uppercase tracking-widest opacity-60">Footwear · Couture · Horology · Optical</div>
-                </div>
-                <div>
-                  <div className="text-3xl sm:text-4xl font-light tabular-nums" style={{ color: currentFinish.hex }}>
-                    <AnimatedCounter value={6} suffix=" Creations" />
-                  </div>
-                  <div className="mt-2 text-[10px] uppercase tracking-widest opacity-60">Interactive 3D Silhouettes & Hotspots</div>
-                </div>
-                <div>
-                  <div className="text-3xl sm:text-4xl font-light tabular-nums" style={{ color: currentFinish.hex }}>
-                    <AnimatedCounter value={360} suffix="°" />
-                  </div>
-                  <div className="mt-2 text-[10px] uppercase tracking-widest opacity-60">PBR Studio Lightformer Inspection</div>
-                </div>
+        {/* SECTION 7: ASSET PROVENANCE & PIPELINE TRANSPARENCY LEDGER */}
+        <section className="mv-section mv-provenance-ledger mv-reveal" aria-label="Asset Provenance">
+          <div className="mv-provenance-ledger__box">
+            <div>
+              <span className="mv-mono-kicker">ASSET PIPELINE &amp; PROVENANCE VERIFICATION</span>
+              <h3>Verified Media Architecture (Universal Cinematic Studio v6.2)</h3>
+              <p>
+                Every visual asset on this storefront is tracked in{' '}
+                <code>/asset-provenance.json</code>. Three pieces feature Khronos Group CC-BY-4.0
+                PBR <code>.glb</code> models within the 8 MiB GPU budget; all six pieces feature
+                licensed, unbranded studio and editorial photography.
+              </p>
+            </div>
+            <div className="mv-provenance-ledger__meta">
+              <div>
+                <span>3D PBR Models</span>
+                <strong>3 Khronos CC-BY-4.0 GLBs (125.7k Total Vertices)</strong>
               </div>
-            </AnimIn>
-          </section>
-        </ParallaxSection>
-
-        {/* 8. Client Services & Technical Provenance FAQ (Reusing FaqSection) */}
-        <section
-          id="cs-atelier-faq"
-          aria-label="Client Services and Provenance"
-          style={{ padding: '100px clamp(22px, 8vw, 150px)', borderTop: '1px solid rgba(255,255,255,0.12)' }}
-        >
-          <div className="mx-auto max-w-4xl">
-            <AnimIn>
-              <span className="cs-eyebrow">CLIENT SERVICES & 3D PROVENANCE</span>
-              <h2 style={{ fontSize: 'clamp(32px, 4.5vw, 64px)', fontWeight: 480, letterSpacing: '-0.05em', margin: '16px 0 36px' }}>
-                Transparency in <em>every dimension.</em>
-              </h2>
-              <FaqSection items={atelierFaqs} />
-            </AnimIn>
+              <div>
+                <span>Photographic Plates</span>
+                <strong>9 High-Resolution JPEG Plates (0 SVG Placeholders)</strong>
+              </div>
+              <div>
+                <span>Gemini Image API Diagnostic</span>
+                <strong>{GEMINI_IMAGE_PIPELINE_STATUS.status} (Free Tier Limit: 0)</strong>
+              </div>
+            </div>
           </div>
         </section>
 
-        {/* 9. Finale Section */}
-        <section className="cs-finale" id="cs-finale">
-          <div className="cs-finale-ambient" />
-          <AnimIn>
-            <div className="cs-eyebrow">A DIFFERENT PERSPECTIVE</div>
-            <h2>
-              Explore what’s <em>possible.</em>
-            </h2>
-            <p>Experience each footwear, garment, timepiece, and accessory study in interactive three-dimensional space.</p>
-            <div className="flex flex-wrap items-center justify-center gap-4">
-              <MagneticButton href="#cs-collection">Explore the collection</MagneticButton>
+        {/* SECTION 8: OPT-IN EXPERIMENTAL 3D SILHOUETTE LAB */}
+        <ExperimentalConceptLab />
+      </main>
+
+      {/* FULLSCREEN PRODUCT DOSSIER MODAL */}
+      {inspectProduct && (
+        <div
+          className="studio-modal-backdrop"
+          role="dialog"
+          aria-modal="true"
+          aria-label={`${inspectProduct.name} Dossier`}
+          onClick={() => setInspectProduct(null)}
+        >
+          <div className="studio-modal mv-dossier-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="mv-dossier-modal__header">
+              <div>
+                <span className="mv-mono-kicker">
+                  {inspectProduct.category.toUpperCase()} · {inspectProduct.provenanceNote}
+                </span>
+                <h2>{inspectProduct.name}</h2>
+              </div>
               <button
                 type="button"
-                onClick={() => setBagOpen(true)}
-                style={{
-                  padding: '14px 24px',
-                  border: '1px solid rgba(255,255,255,0.28)',
-                  borderRadius: '100px',
-                  background: 'transparent',
-                  color: 'inherit',
-                  fontSize: '12px',
-                  cursor: 'pointer',
-                }}
+                className="studio-button studio-button--ghost"
+                onClick={() => setInspectProduct(null)}
               >
-                Open Atelier Bag ({bagItems.reduce((a, b) => a + b.qty, 0)})
+                Close Dossier ×
               </button>
             </div>
-          </AnimIn>
-        </section>
 
-        <footer className="cs-footer">
-          <a href="#cs-top">{site.brand}</a>
-          <span>
-            {isDemo ? 'DEMONSTRATION — NOT A LIVE STORE' : 'An original immersive digital storefront'} · {new Date().getFullYear()}
-          </span>
-          <div className="flex flex-wrap gap-5">
-            <a href="?view=audit">QA Harness ↗</a>
-            <a href="?view=classic">Classic Stage ↗</a>
-            <a href="?view=toolkit">Component Catalog ↗</a>
-          </div>
-        </footer>
-
-        {/* Interactive 3D Product Modal */}
-        {showDialog && (
-          <ProductDialog
-            item={showDialog}
-            close={() => setSelected(null)}
-            next={handleNext}
-            prev={handlePrev}
-            reduced={reduced}
-            onAddToBag={addToBag}
-          />
-        )}
-
-        {/* Slide-Over Atelier Curation / Reservation Drawer */}
-        {bagOpen && (
-          <div
-            className="cs-dialog-backdrop"
-            style={{ justifyItems: 'end', padding: 0 }}
-            onMouseDown={(e) => {
-              if (e.target === e.currentTarget) setBagOpen(false);
-            }}
-          >
-            <aside
-              role="dialog"
-              aria-modal="true"
-              aria-label="Atelier Curation Bag"
-              style={{
-                width: 'min(480px, 100vw)',
-                height: '100dvh',
-                background: '#141013',
-                color: '#faf2ef',
-                borderLeft: '1px solid rgba(255,255,255,0.18)',
-                display: 'flex',
-                flexDirection: 'column',
-                justifyContent: 'space-between',
-                padding: '28px',
-                overflowY: 'auto',
-              }}
-            >
-              <div>
-                <div className="flex items-center justify-between border-b border-white/15 pb-5">
-                  <div>
-                    <span className="cs-eyebrow">PRIVATE CLIENT CURATION</span>
-                    <h3 className="text-xl font-medium mt-1">Atelier Bag ({bagItems.reduce((a, b) => a + b.qty, 0)})</h3>
-                  </div>
-                  <button type="button" onClick={() => setBagOpen(false)} className="cs-circle" aria-label="Close Atelier Bag">
-                    <X size={18} />
-                  </button>
-                </div>
-
-                {bagItems.length === 0 ? (
-                  <div className="py-16 text-center text-sm opacity-65">Your Atelier Bag is empty. Select any piece to reserve for private inspection.</div>
-                ) : (
-                  <div className="divide-y divide-white/10 my-6">
-                    {bagItems.map((entry, idx) => (
-                      <div key={`${entry.product.id}-${entry.finish}-${idx}`} className="py-4 flex items-start justify-between gap-4">
-                        <div>
-                          <div className="text-[10px] uppercase tracking-widest opacity-60">
-                            {entry.product.category} · {entry.finish} · {entry.size}
-                          </div>
-                          <div className="font-medium text-sm mt-1">{entry.product.name}</div>
-                          <div className="text-xs opacity-75 mt-1 tabular-nums">
-                            {cost(entry.product)} × {entry.qty}
-                          </div>
-                        </div>
-                        <button
-                          type="button"
-                          onClick={() => removeFromBag(idx)}
-                          aria-label={`Remove ${entry.product.name}`}
-                          className="p-2 opacity-60 hover:opacity-100"
-                          style={{ background: 'transparent', border: 'none', color: 'inherit', cursor: 'pointer' }}
-                        >
-                          <Trash2 size={15} />
-                        </button>
-                      </div>
-                    ))}
-                  </div>
-                )}
+            <div className="mv-dossier-modal__grid">
+              <div className="mv-dossier-modal__viewport">
+                <ModelViewport
+                  modelPath={inspectProduct.modelPath}
+                  concept={inspectProduct.concept}
+                  accentColor={inspectProduct.accentColor}
+                  secondaryColor={inspectProduct.secondaryColor}
+                  cameraPreset={inspectProduct.cameraPreset || 'reveal'}
+                  lightingPreset={activeLighting}
+                  posterImage={inspectProduct.image}
+                  title={inspectProduct.name}
+                  subtitle={inspectProduct.subtitle}
+                  allowProceduralConcept={false}
+                  provenanceLabel={inspectProduct.provenanceNote}
+                />
               </div>
 
-              {bagItems.length > 0 && (
-                <div className="border-t border-white/15 pt-5 space-y-4">
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="opacity-70 uppercase tracking-wider text-xs">Estimated Valuation</span>
-                    <strong className="text-lg tabular-nums" style={{ color: currentFinish.hex }}>
-                      {new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(bagTotal)}
-                    </strong>
+              <div className="mv-dossier-modal__info">
+                <strong className="mv-dossier-price">{inspectProduct.price}</strong>
+                <p>{inspectProduct.craftsmanshipNarrative}</p>
+                <dl className="mv-dossier-specs">
+                  {inspectProduct.specs.map((s) => (
+                    <div key={s.label} className="mv-dossier-specs__row">
+                      <dt>{s.label}</dt>
+                      <dd>{s.value}</dd>
+                    </div>
+                  ))}
+                </dl>
+                <div className="mv-dossier-actions">
+                  <button
+                    type="button"
+                    className="studio-button studio-button--primary"
+                    onClick={() => {
+                      handleReserve(inspectProduct);
+                      setInspectProduct(null);
+                    }}
+                  >
+                    Add to Atelier Allocation — {inspectProduct.price}
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ATELIER ALLOCATION / RESERVATION DRAWER */}
+      {isDrawerOpen && (
+        <div
+          className="studio-modal-backdrop"
+          role="dialog"
+          aria-modal="true"
+          aria-label="Atelier Allocation Bag"
+          onClick={() => setIsDrawerOpen(false)}
+        >
+          <aside className="mv-allocation-drawer" onClick={(e) => e.stopPropagation()}>
+            <div className="mv-allocation-drawer__head">
+              <div>
+                <span className="mv-mono-kicker">PRIVATE CLIENT SERVICES</span>
+                <h3>Atelier Allocation Bag ({totalBagCount})</h3>
+              </div>
+              <button
+                type="button"
+                className="studio-button studio-button--ghost"
+                onClick={() => setIsDrawerOpen(false)}
+              >
+                Close ×
+              </button>
+            </div>
+
+            {cartItems.length === 0 ? (
+              <div className="mv-allocation-drawer__empty">
+                <p>Your private allocation dossier is currently empty.</p>
+                <span>Select any piece from the collection to request an atelier reservation.</span>
+              </div>
+            ) : (
+              <>
+                <ul className="mv-allocation-drawer__list">
+                  {cartItems.map(({ product, qty }) => (
+                    <li key={product.id} className="mv-allocation-item">
+                      <img src={product.image} alt={product.name} />
+                      <div className="mv-allocation-item__info">
+                        <span>{product.category}</span>
+                        <strong>{product.name}</strong>
+                        <small>
+                          {product.price} × {qty}
+                        </small>
+                      </div>
+                      <button
+                        type="button"
+                        className="mv-allocation-item__remove"
+                        onClick={() => handleRemoveCartItem(product.id)}
+                      >
+                        Remove
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+
+                <div className="mv-allocation-drawer__foot">
+                  <div className="mv-allocation-total">
+                    <span>Estimated Allocation Total</span>
+                    <strong>${totalAllocationValue.toLocaleString()}</strong>
                   </div>
 
-                  {reservationSubmitted ? (
-                    <div className="p-4 border border-emerald-400/30 bg-emerald-500/10 text-xs leading-relaxed text-emerald-200">
-                      <strong>Private Salon Inquiry Recorded (Demo)</strong>
-                      <p className="mt-1 opacity-80">
-                        Reference #MV-2026-{bagItems.length}09 prepared for {clientName || 'Private Client'}. Note: This is a truthful demonstration interface; no real payment or live order dispatch has been processed.
+                  {reservationConfirmed ? (
+                    <div className="mv-allocation-confirmed">
+                      <strong>Private Client Dossier Registered</strong>
+                      <p>
+                        No online card capture is performed on this preview. A Maison Véra client
+                        advisor prepares bespoke sizing and provenance documentation upon request.
                       </p>
                     </div>
                   ) : (
-                    <form
-                      onSubmit={(e) => {
-                        e.preventDefault();
-                        setReservationSubmitted(true);
-                      }}
-                      className="space-y-3"
+                    <button
+                      type="button"
+                      className="studio-button studio-button--primary"
+                      style={{ width: '100%' }}
+                      onClick={() => setReservationConfirmed(true)}
                     >
-                      <Input
-                        required
-                        value={clientName}
-                        onChange={(e) => setClientName(e.target.value)}
-                        placeholder="Client Name for Salon Appointment"
-                        aria-label="Client Name"
-                      />
-                      <Input
-                        required
-                        type="email"
-                        value={clientEmail}
-                        onChange={(e) => setClientEmail(e.target.value)}
-                        placeholder="Client Email"
-                        aria-label="Client Email"
-                      />
-                      <button type="submit" className="cs-primary w-full justify-center">
-                        Request Private Salon Viewing (Demo) <ArrowRight size={16} />
-                      </button>
-                      <p className="text-[11px] opacity-55 leading-relaxed">
-                        Demonstration storefront only — no live payment gateway or false checkout claim is made.
-                      </p>
-                    </form>
+                      Request Private Client Appointment
+                    </button>
                   )}
                 </div>
-              )}
-            </aside>
+              </>
+            )}
+          </aside>
+        </div>
+      )}
+
+      <footer className="mv-footer">
+        <div className="mv-footer__inner">
+          <div>
+            <strong>{SITE_CONFIG.brand}</strong>
+            <p>{SITE_CONFIG.tagline}</p>
           </div>
-        )}
-      </main>
+          <div className="mv-footer__meta">
+            <span>Universal Cinematic Studio v6.2 · Motion + Scroll-World Architecture</span>
+            <span>Khronos CC-BY-4.0 PBR GLB Assets · Licensed Editorial Photography</span>
+          </div>
+        </div>
+      </footer>
+      </div>
     </SmoothScroll>
   );
 }
+
+export default AutoCinematicSite;

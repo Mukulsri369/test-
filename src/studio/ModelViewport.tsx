@@ -1,159 +1,480 @@
-import React, { Suspense, useEffect, useRef, useState } from 'react';
-import { Canvas, useFrame, useThree } from '@react-three/fiber';
-import { OrbitControls, PerformanceMonitor, useGLTF } from '@react-three/drei';
-import { AdaptiveLightingRig, CameraDirector, CinematicAtmosphere, ProductHotspots, WatchConcept, SneakerConcept, ChairConcept } from './experience';
-import type { ExperiencePreset, ProductHotspot } from './experience';
-import { Bloom, EffectComposer } from '@react-three/postprocessing';
-import { Box3, Group, Vector3 } from 'three';
-import { EyewearConcept, SpeakerConcept, GearConcept, CupConcept, BallConcept, ControllerConcept } from './experience/SectorConcepts';
+import React, { Suspense, useEffect, useMemo, useRef, useState } from 'react';
+import { Canvas, useFrame } from '@react-three/fiber';
+import { ContactShadows, Float, OrbitControls, useGLTF } from '@react-three/drei';
+import * as THREE from 'three';
+import { AdaptiveLightingRig } from './experience/AdaptiveLightingRig';
+import { CameraDirector } from './experience/CameraDirector';
+import { CinematicAtmosphere } from './experience/CinematicAtmosphere';
+import { ProductHotspots } from './experience/ProductHotspots';
+import { ChairConcept, SneakerConcept, WatchConcept } from './experience/ConceptEnhancements';
+import {
+  BallConcept,
+  ControllerConcept,
+  CupConcept,
+  EyewearConcept,
+  GearConcept,
+  SpeakerConcept,
+} from './experience/SectorConcepts';
+import type {
+  CameraStyle,
+  ExperiencePreset,
+  LightingMood,
+  ProductHotspot,
+} from './experience/experience.types';
 
-export type ConceptKind = 'sculpture'|'lamp'|'rings'|'vehicle'|'fabric'|'planet'|'device'|'architecture'|'bottle'|'watch'|'sneaker'|'chair'|'eyewear'|'speaker'|'gear'|'cup'|'ball'|'controller'|string;
-type Props = { modelPath?:string|null; concept?:ConceptKind; accent?:string; interactive?:boolean; reducedMotion?:boolean; label?:string; stage?:'hero'|'detail'; experience?:Partial<ExperiencePreset>; hotspots?:ProductHotspot[] };
+export type LightingPreset = LightingMood;
+export type CameraPreset = CameraStyle;
 
-function LoadedModel({ path }: {path:string}) {
-  const gltf = useGLTF(path);
-  const model = React.useMemo(() => {
-    const scene = gltf.scene.clone(true);
-    const box = new Box3().setFromObject(scene);
-    const size = new Vector3(); const center = new Vector3();
-    box.getSize(size); box.getCenter(center);
-    const longest = Math.max(size.x,size.y,size.z,0.0001);
-    const scale = 2.8 / longest;
-    scene.position.set(-center.x,-center.y,-center.z);
-    const wrapper = new Group();wrapper.add(scene);wrapper.scale.setScalar(scale);
-    return wrapper;
-  },[gltf.scene]);
-  return <primitive object={model} />;
+export type ConceptType =
+  | 'Orb'
+  | 'Sneaker'
+  | 'Shoe'
+  | 'Watch'
+  | 'Eyewear'
+  | 'Chair'
+  | 'Speaker'
+  | 'Gear'
+  | 'Cup'
+  | 'Ball'
+  | 'Controller'
+  | 'Rings'
+  | 'Fabric'
+  | string;
+
+export interface ModelViewportProps {
+  modelPath?: string | null;
+  concept?: ConceptType;
+  accentColor?: string;
+  accent?: string;
+  secondaryColor?: string;
+  autoRotate?: boolean;
+  cameraPreset?: CameraStyle;
+  lightingPreset?: LightingMood;
+  hotspots?: ProductHotspot[];
+  posterImage?: string;
+  title?: string;
+  label?: string;
+  subtitle?: string;
+  stage?: string;
+  reducedMotion?: boolean;
+  experience?: ExperiencePreset;
+  interactive?: boolean;
+  scrollProgress?: number;
+  /**
+   * When false (default in commercial storefront sections), products without a verified GLB
+   * render the high-resolution Photographic Loupe Stage instead of primitive procedural geometry.
+   */
+  allowProceduralConcept?: boolean;
+  provenanceLabel?: string;
 }
-const metal = (color:string, metalness=.65, roughness=.22) =>
-  <meshStandardMaterial color={color} metalness={metalness} roughness={roughness}/>;
 
-function ConceptModel({ kind, accent }: {kind:ConceptKind;accent:string}) {
-  switch(kind) {
-    case 'eyewear':return <EyewearConcept accent={accent}/>;
-    case 'speaker':return <SpeakerConcept accent={accent}/>;
-    case 'gear':return <GearConcept accent={accent}/>;
-    case 'cup':return <CupConcept accent={accent}/>;
-    case 'ball':return <BallConcept accent={accent}/>;
-    case 'controller':return <ControllerConcept accent={accent}/>;
-    case 'watch': return <WatchConcept accent={accent}/>;
-    case 'sneaker': return <SneakerConcept accent={accent}/>;
-    case 'chair': return <ChairConcept accent={accent}/>;
-    case 'lamp': return <group>
-      <mesh position={[0,-1.05,0]}>{/* pedestal */}<cylinderGeometry args={[.55,.65,.12,96]} />{metal('#74716c')}</mesh>
-      <mesh position={[0,-.25,0]}><cylinderGeometry args={[.075,.075,1.55,32]}/>{metal('#ccb58f')}</mesh>
-      <mesh position={[0,.63,0]}><cylinderGeometry args={[.34,.77,.8,96,1,true]}/><meshStandardMaterial color={accent} side={2} metalness={.22} roughness={.4} emissive={accent} emissiveIntensity={.09}/></mesh>
-      <pointLight color={accent} position={[0,.6,0]} intensity={12} distance={2.6}/>
-      <mesh position={[0,1.01,0]}><cylinderGeometry args={[.34,.34,.055,72]}/>{metal('#8c8174')}</mesh>
-    </group>;
-    case 'rings':return <group rotation={[.3,.2,.25]}>
-      {[0,1,2].map((v)=><mesh key={v} position={[(v-1)*.3,(v-1)*.25,(v-1)*.1]} rotation={[v*.18,v*.28,v*.25]}>
-        <torusGeometry args={[.72,.11,20,128]}/>{metal(v===1?'#fae6bc':accent,.94,.16)}
-      </mesh>)}
-      <mesh position={[0,.72,.12]}><octahedronGeometry args={[.18,1]}/><meshPhysicalMaterial color="#f9f7ff" roughness={.04} metalness={.08} transmission={.35} thickness={.3}/></mesh>
-    </group>;
-    case 'planet':return <group>
-      <mesh rotation={[.3,0,0]}><sphereGeometry args={[.88,64,48]}/><meshStandardMaterial color={accent} metalness={.27} roughness={.78}/></mesh>
-      <mesh rotation={[.5,.1,.65]}><torusGeometry args={[1.35,.04,8,128]}/>{metal('#a8a1cf',.4,.4)}</mesh>
-      <mesh rotation={[-.3,.2,-.6]}><torusGeometry args={[1.44,.02,8,128]}/><meshBasicMaterial color="#8f92b5" transparent opacity={.45}/></mesh>
-    </group>;
-    case 'device':return <group rotation={[.1,-.24,.15]}>
-      <mesh><boxGeometry args={[1.65,2.45,.15]}/>{metal('#8692a4')}</mesh>
-      <mesh position={[0,0,.09]}><boxGeometry args={[1.48,2.25,.01]}/><meshStandardMaterial color="#132c42" emissive={accent} emissiveIntensity={.18} roughness={.22}/></mesh>
-      <mesh position={[0,0,.107]}><torusGeometry args={[.42,.035,12,80]}/><meshBasicMaterial color={accent}/></mesh>
-    </group>;
-    case 'bottle':return <group>
-      <mesh position={[0,-.25,0]}><cylinderGeometry args={[.55,.55,1.75,72]}/><meshPhysicalMaterial color={accent} roughness={.18} metalness={.08} transmission={.1} thickness={.25}/></mesh>
-      <mesh position={[0,.8,0]}><cylinderGeometry args={[.32,.32,.38,72]}/>{metal('#d8d6c7')}</mesh>
-      <mesh position={[0,.18,.55]}><boxGeometry args={[.64,.56,.02]}/><meshStandardMaterial color="#e8e0cc" roughness={.7}/></mesh>
-    </group>;
-    case 'vehicle':return <group rotation={[0,-.28,0]}>
-      <mesh position={[0,-.18,0]}><boxGeometry args={[2.8,.46,1.12]}/>{metal(accent,.68,.28)}</mesh>
-      <mesh position={[-.2,.33,0]}><boxGeometry args={[1.45,.7,1.02]}/><meshStandardMaterial color="#28323b" metalness={.54} roughness={.23}/></mesh>
-      {[-.95,.95].flatMap(x=>[-.58,.58].map(z=><mesh key={`${x},${z}`} position={[x,-.45,z]} rotation={[Math.PI/2,0,0]}>
-        <cylinderGeometry args={[.33,.33,.16,40]}/>{metal('#17191a',.1,.8)}</mesh>))}
-    </group>;
-    case 'architecture':return <group position={[0,-.65,0]}>
-      <mesh position={[0,-.5,0]}><boxGeometry args={[2.9,.14,1.8]}/>{metal('#82796b',.07,.9)}</mesh>
-      <mesh position={[-.52,.4,0]}><boxGeometry args={[1.1,1.65,.9]}/>{metal(accent,.2,.55)}</mesh>
-      <mesh position={[.52,.12,-.25]}><boxGeometry args={[1.08,1.1,1.4]}/><meshPhysicalMaterial color="#788b87" roughness={.14} metalness={.28} transparent opacity={.75}/></mesh>
-    </group>;
-    case 'fabric':return <group rotation={[.2,.3,.3]}>
-      <mesh><torusKnotGeometry args={[.8,.25,180,22,2,5]}/><meshStandardMaterial color={accent} roughness={.65} metalness={.04}/></mesh>
-    </group>;
-    default:return <group>
-      <mesh rotation={[.28,.4,-.2]}><icosahedronGeometry args={[1.23,5]}/>{metal(accent,.66,.18)}</mesh>
-      <mesh rotation={[.5,.1,.42]}><torusGeometry args={[1.5,.017,6,120]}/><meshBasicMaterial color={accent} transparent opacity={.7}/></mesh>
-    </group>;
+class ModelErrorBoundary extends React.Component<
+  { fallback: React.ReactNode; children: React.ReactNode },
+  { hasError: boolean }
+> {
+  state = { hasError: false };
+  static getDerivedStateFromError() {
+    return { hasError: true };
+  }
+  componentDidUpdate(prevProps: { fallback: React.ReactNode; children: React.ReactNode }) {
+    if (prevProps.children !== this.props.children && this.state.hasError) {
+      this.setState({ hasError: false });
+    }
+  }
+  render() {
+    return this.state.hasError ? this.props.fallback : this.props.children;
   }
 }
-class SceneErrorBoundary extends React.Component<{children:React.ReactNode; fallback:React.ReactNode}, {hasError:boolean}> {
-  state={hasError:false};
-  static getDerivedStateFromError(){return {hasError:true};}
-  render(){return this.state.hasError?this.props.fallback:this.props.children;}
+
+function detectWebGL(): boolean {
+  if (typeof window === 'undefined') return false;
+  try {
+    const canvas = document.createElement('canvas');
+    return Boolean(canvas.getContext('webgl2') || canvas.getContext('webgl'));
+  } catch {
+    return false;
+  }
 }
-function RotationRig({modelPath,concept,accent,reducedMotion}:{modelPath:string|null;concept:ConceptKind;accent:string;reducedMotion:boolean}) {
-  const ref=useRef<Group>(null);
-  useFrame(({clock},delta)=>{
-    if (ref.current && !reducedMotion) {
-      ref.current.rotation.y+=Math.min(delta,.04)*.06;
-      ref.current.position.y=Math.sin(clock.elapsedTime*.45)*.035;
+
+function LoadedGLB({
+  modelPath,
+  autoRotate = true,
+  scrollProgress = 0,
+}: {
+  modelPath: string;
+  autoRotate?: boolean;
+  scrollProgress?: number;
+}) {
+  const gltf = useGLTF(modelPath);
+  const group = useRef<THREE.Group>(null);
+
+  const normalizedScene = useMemo(() => {
+    const cloned = gltf.scene.clone(true);
+    cloned.updateMatrixWorld(true);
+
+    cloned.traverse((obj) => {
+      if ((obj as THREE.Mesh).isMesh) {
+        const mesh = obj as THREE.Mesh;
+        mesh.castShadow = true;
+        mesh.receiveShadow = true;
+        if (mesh.material) {
+          const materials = Array.isArray(mesh.material) ? mesh.material : [mesh.material];
+          materials.forEach((mat) => {
+            if ('envMapIntensity' in mat) {
+              (mat as THREE.MeshStandardMaterial).envMapIntensity = 1.65;
+            }
+            mat.needsUpdate = true;
+          });
+        }
+      }
+    });
+
+    const box = new THREE.Box3().setFromObject(cloned);
+    const size = new THREE.Vector3();
+    box.getSize(size);
+    const maxDim = Math.max(size.x, size.y, size.z);
+    const targetSpan = modelPath.includes('watch')
+      ? 2.25
+      : modelPath.includes('footwear')
+        ? 2.35
+        : 2.3;
+    const scaleFactor = maxDim > 0 ? targetSpan / maxDim : 1;
+
+    const wrapper = new THREE.Group();
+    cloned.scale.setScalar(scaleFactor);
+    cloned.updateMatrixWorld(true);
+
+    const scaledBox = new THREE.Box3().setFromObject(cloned);
+    const scaledCenter = new THREE.Vector3();
+    scaledBox.getCenter(scaledCenter);
+    cloned.position.set(-scaledCenter.x, -scaledCenter.y + 0.05, -scaledCenter.z);
+
+    wrapper.add(cloned);
+    if (modelPath.includes('footwear')) {
+      wrapper.rotation.set(0.14, -0.55, 0);
+    } else if (modelPath.includes('watch')) {
+      wrapper.rotation.set(0.18, 0.35, 0);
+    } else {
+      wrapper.rotation.set(0.12, -0.35, 0);
+    }
+    return wrapper;
+  }, [gltf.scene, modelPath]);
+
+  const prevScrollRef = useRef(scrollProgress);
+  const scrollBoostRef = useRef(0);
+
+  useFrame((state, delta) => {
+    if (!group.current) return;
+    const scrollDelta = scrollProgress - prevScrollRef.current;
+    prevScrollRef.current = scrollProgress;
+    scrollBoostRef.current = THREE.MathUtils.damp(
+      scrollBoostRef.current,
+      scrollDelta * 18,
+      6,
+      delta,
+    );
+
+    if (autoRotate) {
+      group.current.rotation.y += delta * 0.32 + scrollBoostRef.current * 0.28;
+    }
+    group.current.rotation.x = THREE.MathUtils.damp(
+      group.current.rotation.x,
+      Math.sin(scrollProgress * Math.PI * 2) * 0.08 + scrollBoostRef.current * 0.06,
+      5,
+      delta,
+    );
+    group.current.position.y =
+      Math.sin(state.clock.elapsedTime * 1.1) * 0.02 +
+      Math.cos(scrollProgress * Math.PI * 2) * 0.03;
+  });
+
+  return (
+    <group ref={group}>
+      <primitive object={normalizedScene} />
+    </group>
+  );
+}
+
+function ProceduralConcept({
+  concept = 'Sneaker',
+  accentColor = '#c9a46b',
+  autoRotate = true,
+}: {
+  concept?: ConceptType;
+  accentColor?: string;
+  autoRotate?: boolean;
+}) {
+  const group = useRef<THREE.Group>(null);
+  useFrame((_, dt) => {
+    if (group.current && autoRotate) {
+      group.current.rotation.y += dt * 0.35;
     }
   });
-  return <group ref={ref}>
-    {modelPath?<SceneErrorBoundary key={modelPath} fallback={<ConceptModel kind={concept} accent={accent}/>}>
-      <Suspense fallback={<ConceptModel kind={concept} accent={accent}/>}><LoadedModel path={modelPath}/></Suspense>
-    </SceneErrorBoundary>:<ConceptModel kind={concept} accent={accent}/>}
-  </group>;
+
+  const key = String(concept).toLowerCase();
+  return (
+    <group ref={group}>
+      {key.includes('watch') ? (
+        <WatchConcept accent={accentColor} />
+      ) : key.includes('sneaker') || key.includes('shoe') ? (
+        <SneakerConcept accent={accentColor} />
+      ) : key.includes('chair') ? (
+        <ChairConcept accent={accentColor} />
+      ) : key.includes('eyewear') ? (
+        <EyewearConcept accent={accentColor} />
+      ) : key.includes('speaker') ? (
+        <SpeakerConcept accent={accentColor} />
+      ) : key.includes('gear') ? (
+        <GearConcept accent={accentColor} />
+      ) : key.includes('cup') ? (
+        <CupConcept accent={accentColor} />
+      ) : key.includes('ball') ? (
+        <BallConcept accent={accentColor} />
+      ) : key.includes('controller') ? (
+        <ControllerConcept accent={accentColor} />
+      ) : (
+        <SneakerConcept accent={accentColor} />
+      )}
+    </group>
+  );
 }
-function StudioScene({modelPath,concept,accent,interactive,reducedMotion,quality,experience,scrollProgress,hotspots}:{
-  modelPath:string|null;concept:ConceptKind;accent:string;interactive:boolean;reducedMotion:boolean;quality:'high'|'low';experience?:Partial<ExperiencePreset>;scrollProgress:number;hotspots?:ProductHotspot[]
+
+function PhotographicLoupeFallback({
+  posterImage,
+  title,
+  subtitle,
+  provenanceLabel,
+}: {
+  posterImage?: string;
+  title?: string;
+  subtitle?: string;
+  provenanceLabel?: string;
 }) {
-  const [dpr,setDpr]=useState(quality==='high'?1.5:1);
-  const {setDpr:applyDpr}=useThree();
-  useEffect(()=>{applyDpr(dpr);},[applyDpr,dpr]);
-  return <>
-    <AdaptiveLightingRig mood={experience?.mood||'gallery'} accent={accent} quality={quality}/>
-    {quality==='high' && !reducedMotion && <CinematicAtmosphere accent={accent}/> }
-    {!interactive && <CameraDirector style={experience?.camera||'reveal'} progress={scrollProgress} disabled={reducedMotion}/> }
-    <RotationRig modelPath={modelPath} concept={concept} accent={accent} reducedMotion={reducedMotion}/>
-    {interactive && hotspots && hotspots.length>0 && <ProductHotspots points={hotspots}/> }
-    {interactive && <OrbitControls makeDefault enablePan={false} enableZoom={true} minDistance={3.5} maxDistance={9} minPolarAngle={.4} maxPolarAngle={2.5}/>}
-    <PerformanceMonitor onDecline={()=>setDpr(1)} onIncline={()=>setDpr(quality==='high'?1.5:1)}/>
-    {quality==='high'&&!reducedMotion&&experience?.effects!=='none'&&<EffectComposer multisampling={0}>
-      <Bloom intensity={experience?.effects==='glow'?.28:.12} luminanceThreshold={1.1} luminanceSmoothing={.35} mipmapBlur/>
-    </EffectComposer>}
-  </>;
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [loupe, setLoupe] = useState<{ active: boolean; x: number; y: number }>({
+    active: false,
+    x: 50,
+    y: 50,
+  });
+
+  const handlePointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (!containerRef.current) return;
+    const rect = containerRef.current.getBoundingClientRect();
+    const x = Math.max(0, Math.min(100, ((e.clientX - rect.left) / rect.width) * 100));
+    const y = Math.max(0, Math.min(100, ((e.clientY - rect.top) / rect.height) * 100));
+    setLoupe({ active: true, x, y });
+  };
+
+  return (
+    <div
+      ref={containerRef}
+      className="studio-viewport-fallback studio-photographic-stage"
+      role="img"
+      aria-label={title || 'Atelier photographic inspection stage'}
+      onPointerMove={handlePointerMove}
+      onPointerEnter={() => setLoupe((prev) => ({ ...prev, active: true }))}
+      onPointerLeave={() => setLoupe((prev) => ({ ...prev, active: false }))}
+    >
+      {posterImage ? (
+        <>
+          <img
+            src={posterImage}
+            alt={title || 'Atelier product photograph'}
+            className="studio-photographic-stage__img"
+            style={{
+              transform: loupe.active ? 'scale(2.25)' : 'scale(1.01)',
+              transformOrigin: `${loupe.x}% ${loupe.y}%`,
+            }}
+          />
+          <div className="studio-photographic-stage__vignette" />
+        </>
+      ) : (
+        <div className="studio-fallback-orb" />
+      )}
+      <div className="studio-fallback-copy">
+        <span className="studio-badge">
+          {provenanceLabel || 'ATELIER PHOTOGRAPHY · 2.25× OPTICAL LOUPE'}
+        </span>
+        {title && <strong>{title}</strong>}
+        <p>
+          {subtitle ||
+            'Move cursor across garment or silhouette to inspect surface grain and stitch tension.'}
+        </p>
+      </div>
+    </div>
+  );
 }
-export default function ModelViewport({modelPath=null,concept='sculpture',accent='#ead0a7',interactive=false,reducedMotion=false,label='Product',stage='hero',experience,hotspots=[]}:Props) {
-  const host=useRef<HTMLDivElement>(null);
-  const [visible,setVisible]=useState(false);
-  const [onscreen,setOnscreen]=useState(false);
-  const [webgl,setWebgl]=useState(false);
-  const [scrollProgress,setScrollProgress]=useState(0);
-  const [tabVisible,setTabVisible]=useState(true);
-  useEffect(()=>{const sync=()=>setTabVisible(!document.hidden);sync();document.addEventListener('visibilitychange',sync);return()=>document.removeEventListener('visibilitychange',sync);},[]);
-  useEffect(()=>{
-    try{const c=document.createElement('canvas');setWebgl(!!(c.getContext('webgl2')||c.getContext('webgl')));}catch{setWebgl(false);}
-    const ob=new IntersectionObserver((entries)=>{const yes=Boolean(entries[0]?.isIntersecting);if(yes)setVisible(true);setOnscreen(yes);},{rootMargin:'250px'});
-    if(host.current)ob.observe(host.current);return()=>ob.disconnect();
-  },[]);
-  useEffect(()=>{
-    if(interactive||reducedMotion)return;
-    let frame=0;const update=()=>{if(frame)return;frame=requestAnimationFrame(()=>{frame=0;setScrollProgress(Math.max(0,Math.min(1,window.scrollY/Math.max(1,window.innerHeight))));});};
-    window.addEventListener('scroll',update,{passive:true});return()=>{window.removeEventListener('scroll',update);cancelAnimationFrame(frame);};
-  },[interactive,reducedMotion]);
-  const quality:'high'|'low' = typeof window !== 'undefined' && window.innerWidth >= 800?'high':'low';
-  return <div ref={host} className={`cs-model cs-model--${stage}`} role="img" aria-label={`${label}: ${modelPath?'interactive model':'conceptual 3D visualization, not verified product geometry'}`}>
-    {visible&&webgl?<Canvas frameloop={onscreen&&tabVisible?(reducedMotion?'demand':'always'):'never'} dpr={quality==='high'?[1,1.7]:[1,1.15]} camera={{position:[0,0.4,5.6],fov:38,near:.1,far:70}}
-      gl={{antialias:true,alpha:true,powerPreference:'high-performance'}} style={{touchAction:interactive?'none':'pan-y'}}>
-      <Suspense fallback={null}><StudioScene modelPath={modelPath} concept={concept} accent={accent} interactive={interactive} reducedMotion={reducedMotion} quality={quality} experience={experience} scrollProgress={scrollProgress} hotspots={hotspots}/></Suspense>
-    </Canvas>:<div className="cs-model-fallback" aria-hidden="true"><div className="cs-model-orbit"/></div>}
-    {!modelPath&&<div className="cs-concept-tag">Conceptual 3D • replace with product GLB</div>}
-    {interactive&&hotspots&&hotspots.length>0&&<div className="cs-hotspot-list" style={{position:'absolute',right:'16px',bottom:'16px',display:'flex',flexDirection:'column',gap:'8px',zIndex:4,pointerEvents:'none'}}>
-      {hotspots.map(p=><div key={p.id} className="cs-hotspot" title={`${p.label}: ${p.description}`}>
-        <span className="cs-hotspot-dot" aria-hidden="true"/><span className="cs-hotspot-copy"><strong>{p.label}</strong><small>{p.description}</small></span>
-      </div>)}
-    </div>}
-  </div>;
+
+export function ModelViewport({
+  modelPath,
+  concept = 'Sneaker',
+  accentColor,
+  accent,
+  autoRotate = true,
+  cameraPreset = 'reveal',
+  lightingPreset = 'warm-gallery',
+  hotspots = [],
+  posterImage,
+  title,
+  label,
+  subtitle,
+  interactive = true,
+  scrollProgress = 0,
+  allowProceduralConcept = false,
+  provenanceLabel,
+}: ModelViewportProps) {
+  const resolvedAccent = accentColor || accent || '#c9a46b';
+  const resolvedTitle = title || label;
+  const [canRenderWebGL, setCanRenderWebGL] = useState(true);
+  const [reducedMotion, setReducedMotion] = useState(false);
+  const [inView, setInView] = useState(true);
+  const [tabVisible, setTabVisible] = useState(true);
+  const rootRef = useRef<HTMLDivElement>(null);
+
+  const normalizedModelPath = useMemo(() => {
+    const trimmed = modelPath?.trim();
+    return trimmed && /\.(glb|gltf)(\?.*)?$/i.test(trimmed) ? trimmed : null;
+  }, [modelPath]);
+
+  useEffect(() => {
+    setCanRenderWebGL(detectWebGL());
+    const media = window.matchMedia?.('(prefers-reduced-motion: reduce)');
+    const updateMotion = () => setReducedMotion(Boolean(media?.matches));
+    updateMotion();
+    media?.addEventListener?.('change', updateMotion);
+
+    const onVisibility = () => setTabVisible(document.visibilityState !== 'hidden');
+    document.addEventListener('visibilitychange', onVisibility);
+
+    let observer: IntersectionObserver | null = null;
+    if (rootRef.current && 'IntersectionObserver' in window) {
+      observer = new IntersectionObserver(([entry]) => setInView(entry.isIntersecting), {
+        threshold: 0.05,
+      });
+      observer.observe(rootRef.current);
+    }
+
+    return () => {
+      media?.removeEventListener?.('change', updateMotion);
+      document.removeEventListener('visibilitychange', onVisibility);
+      observer?.disconnect();
+    };
+  }, []);
+
+  if (!normalizedModelPath && !allowProceduralConcept) {
+    return (
+      <PhotographicLoupeFallback
+        posterImage={posterImage}
+        title={resolvedTitle}
+        subtitle={subtitle}
+        provenanceLabel={provenanceLabel}
+      />
+    );
+  }
+
+  if (!canRenderWebGL) {
+    return (
+      <PhotographicLoupeFallback
+        posterImage={posterImage}
+        title={resolvedTitle}
+        subtitle={subtitle}
+        provenanceLabel={provenanceLabel}
+      />
+    );
+  }
+
+  const active = inView && tabVisible;
+  const shouldRotate = autoRotate && !reducedMotion && active;
+
+  return (
+    <div
+      ref={rootRef}
+      className="studio-model-viewport"
+      aria-label={resolvedTitle || `${concept} 3D viewport`}
+    >
+      <Canvas
+        shadows
+        frameloop={active ? 'always' : 'demand'}
+        dpr={[1, 2]}
+        camera={{ position: [0, 0.18, 3.25], fov: 35 }}
+        gl={{
+          antialias: true,
+          alpha: true,
+          powerPreference: 'high-performance',
+          toneMapping: THREE.ACESFilmicToneMapping,
+          toneMappingExposure: 1.18,
+        }}
+      >
+        <CameraDirector
+          style={cameraPreset}
+          progress={scrollProgress}
+          disabled={reducedMotion || interactive}
+        />
+        <AdaptiveLightingRig mood={lightingPreset} accent={resolvedAccent} quality="high" />
+        {!normalizedModelPath && (
+          <CinematicAtmosphere accent={resolvedAccent} animated={!reducedMotion && active} />
+        )}
+
+        <Suspense fallback={null}>
+          <Float
+            speed={reducedMotion || !active ? 0 : 0.9}
+            rotationIntensity={reducedMotion || !active ? 0 : 0.08}
+            floatIntensity={reducedMotion || !active ? 0 : 0.1}
+          >
+            <ModelErrorBoundary fallback={null}>
+              {normalizedModelPath ? (
+                <LoadedGLB
+                  modelPath={normalizedModelPath}
+                  autoRotate={shouldRotate}
+                  scrollProgress={scrollProgress}
+                />
+              ) : (
+                <ProceduralConcept
+                  concept={concept}
+                  accentColor={resolvedAccent}
+                  autoRotate={shouldRotate}
+                />
+              )}
+            </ModelErrorBoundary>
+            {hotspots.length > 0 && <ProductHotspots points={hotspots} />}
+          </Float>
+          <ContactShadows
+            position={[0, -0.95, 0]}
+            opacity={0.38}
+            scale={6.5}
+            blur={2.4}
+            far={3.2}
+            color="#3d3226"
+          />
+        </Suspense>
+
+        {interactive && (
+          <OrbitControls
+            makeDefault
+            target={[0, 0, 0]}
+            enablePan={false}
+            enableZoom={true}
+            enableDamping={true}
+            dampingFactor={0.05}
+            minDistance={1.85}
+            maxDistance={5.2}
+            maxPolarAngle={Math.PI / 1.75}
+            minPolarAngle={Math.PI / 5}
+          />
+        )}
+      </Canvas>
+      <div className="studio-viewport-caption">
+        <span>
+          {normalizedModelPath
+            ? provenanceLabel || 'VERIFIED PBR GLB · REAL-TIME WEBGL2 STUDIO'
+            : `EXPERIMENTAL SILHOUETTE · ${String(concept).toUpperCase()}`}
+        </span>
+        <span>
+          {interactive ? 'Drag to orbit · Scroll to inspect macro geometry' : 'Preset camera path'}
+        </span>
+      </div>
+    </div>
+  );
 }
+
+export default ModelViewport;

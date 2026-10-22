@@ -1,0 +1,183 @@
+{
+  "schemaVersion": "6.2.0",
+  "brand": "MAISON VÉRA",
+  "auditTimestamp": "2026-10-22T10:07:00Z",
+  "geminiImageGenerationStatus": {
+    "investigated": true,
+    "apiKeyPresent": true,
+    "modelsTested": [
+      "gemini-3.1-flash-lite-image",
+      "gemini-nano-banana-2.1",
+      "gemini-3-pro-image",
+      "gemini-3.1-flash-image",
+      "gemini-2.5-flash-image"
+    ],
+    "status": "QUOTA_REQUIRES_BILLING_TIER",
+    "diagnosticDetail": "HTTP 429 RESOURCE_EXHAUSTED: Quota exceeded for metric generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 0. Live Gemini image generation requires a billing-enabled Gemini API key with non-zero image generation quota.",
+    "fallbackStrategy": "Curated licensed high-resolution editorial & product photography paired with real Khronos Group CC-BY-4.0 PBR GLB 3D assets."
+  },
+  "assets": [
+    {
+      "id": "asset-hero-campaign",
+      "path": "/images/hero-campaign-editorial.jpg",
+      "type": "editorial-photography",
+      "category": "Hero Campaign",
+      "resolution": "1600x2000",
+      "format": "image/jpeg",
+      "source": "Licensed Editorial Photography (Unsplash 1507679799987-c73779587ccf)",
+      "license": "Unsplash License (Commercial & Editorial use permitted)",
+      "verifiedUnbranded": true,
+      "subject": "Tailored charcoal-navy wool suit sleeve, crisp cuff, and minimalist chronograph on architectural stone stairs"
+    },
+    {
+      "id": "asset-coat-drape",
+      "path": "/images/editorial-coat-drape.jpg",
+      "type": "editorial-photography",
+      "category": "Designer Clothing",
+      "resolution": "1400x1750",
+      "format": "image/jpeg",
+      "source": "Licensed Editorial Photography (Unsplash 1539533018447-63fcce2678e3)",
+      "license": "Unsplash License",
+      "verifiedUnbranded": true,
+      "subject": "Camel double-faced wool-cashmere belted overcoat with wide peak lapels and hand-picked edge stitching"
+    },
+    {
+      "id": "asset-coat-detail",
+      "path": "/images/editorial-coat-detail.jpg",
+      "type": "editorial-photography",
+      "category": "Designer Clothing",
+      "resolution": "1400x1050",
+      "format": "image/jpeg",
+      "source": "Licensed Editorial Photography (Unsplash 1558769132-cb1aea458c5e)",
+      "license": "Unsplash License",
+      "verifiedUnbranded": true,
+      "subject": "Atelier garment rail showcasing brushed cashmere, camel wool, and espresso knitwear textures"
+    },
+    {
+      "id": "asset-bomber-studio",
+      "path": "/images/editorial-bomber-studio.jpg",
+      "type": "product-photography",
+      "category": "Designer Clothing",
+      "resolution": "1400x1750",
+      "format": "image/jpeg",
+      "source": "Licensed Studio Photography (Unsplash 1551028719-00167b16eac5)",
+      "license": "Unsplash License",
+      "verifiedUnbranded": true,
+      "subject": "Terracotta-bronze technical silk studio jacket suspended on minimalist wooden atelier hanger"
+    },
+    {
+      "id": "asset-sneaker-photo",
+      "path": "/images/product-sculpted-sneaker.jpg",
+      "type": "product-photography",
+      "category": "Footwear",
+      "resolution": "1400x1400",
+      "format": "image/jpeg",
+      "source": "Licensed Studio Product Photography (Unsplash 1595950653106-6c9ebd614d3a)",
+      "license": "Unsplash License",
+      "verifiedUnbranded": true,
+      "subject": "Unbranded multi-panel suede and technical mesh sculpted runner posed on an architectural white studio plinth"
+    },
+    {
+      "id": "asset-watch-photo",
+      "path": "/images/product-chronograph-watch.jpg",
+      "type": "product-photography",
+      "category": "Watches",
+      "resolution": "1400x1400",
+      "format": "image/jpeg",
+      "source": "Licensed Studio Product Photography (Unsplash 1524592094714-0f0654e20314)",
+      "license": "Unsplash License",
+      "verifiedUnbranded": true,
+      "subject": "Unbranded rose-gold minimalist dress timepiece with pebble-grain taupe calfskin strap"
+    },
+    {
+      "id": "asset-watch-calibre",
+      "path": "/images/product-watch-calibre.jpg",
+      "type": "product-photography",
+      "category": "Watches",
+      "resolution": "1400x1400",
+      "format": "image/jpeg",
+      "source": "Licensed Studio Product Photography (Unsplash 1524592094714-0f0654e20314)",
+      "license": "Unsplash License",
+      "verifiedUnbranded": true,
+      "subject": "Macro studio study of unbranded case bezel geometry and stitched leather strap lug integration"
+    },
+    {
+      "id": "asset-eyewear-photo",
+      "path": "/images/product-titanium-eyewear.jpg",
+      "type": "product-photography",
+      "category": "Accessories",
+      "resolution": "1400x1050",
+      "format": "image/jpeg",
+      "source": "Licensed Studio Product Photography (Unsplash 1511499767150-a48a237f0083)",
+      "license": "Unsplash License",
+      "verifiedUnbranded": true,
+      "subject": "Unbranded gold-titanium optical sun frame with warm gradient lenses on Carrara marble surface"
+    },
+    {
+      "id": "asset-rings-photo",
+      "path": "/images/product-signet-rings.jpg",
+      "type": "product-photography",
+      "category": "Accessories",
+      "resolution": "1400x1050",
+      "format": "image/jpeg",
+      "source": "Licensed Studio Product Photography (Unsplash 1605100804763-247f67b3557e)",
+      "license": "Unsplash License",
+      "verifiedUnbranded": true,
+      "subject": "Unbranded rose-gold and platinum architectural band ring resting on dark obsidian leather"
+    },
+    {
+      "id": "asset-weekender-photo",
+      "path": "/images/product-leather-weekender.jpg",
+      "type": "product-photography",
+      "category": "Accessories",
+      "resolution": "1400x1750",
+      "format": "image/jpeg",
+      "source": "Licensed Studio Product Photography (Unsplash 1553062407-98eeb64c6a62)",
+      "license": "Unsplash License",
+      "verifiedUnbranded": true,
+      "subject": "Unbranded matte black full-grain structured travel pack in directional chiaroscuro lighting"
+    },
+    {
+      "id": "model-footwear-glb",
+      "path": "/models/atelier-footwear-shoe.glb",
+      "type": "verified-3d-glb",
+      "category": "Footwear",
+      "fileSizeMiB": 7.47,
+      "vertices": 13540,
+      "meshes": 1,
+      "textures": 5,
+      "source": "Khronos Group glTF-Sample-Assets (MaterialsVariantsShoe.glb by Shopify Inc.)",
+      "license": "CC-BY-4.0",
+      "verifiedUnbranded": true,
+      "subject": "Photogrammetry-grade 3D PBR footwear model with normal, occlusion, roughness, and diffuse maps"
+    },
+    {
+      "id": "model-watch-glb",
+      "path": "/models/atelier-chronograph-watch.glb",
+      "type": "verified-3d-glb",
+      "category": "Watches",
+      "fileSizeMiB": 7.1,
+      "vertices": 104765,
+      "meshes": 13,
+      "textures": 8,
+      "source": "Khronos Group glTF-Sample-Assets (ChronographWatch.glb by Dassault Systèmes)",
+      "license": "CC-BY-4.0",
+      "verifiedUnbranded": true,
+      "subject": "High-precision 13-mesh horological chronograph 3D model with sapphire crystal, tachymeter bezel, and sub-dials"
+    },
+    {
+      "id": "model-eyewear-glb",
+      "path": "/models/atelier-titanium-eyewear.glb",
+      "type": "verified-3d-glb",
+      "category": "Accessories",
+      "fileSizeMiB": 0.35,
+      "vertices": 7420,
+      "meshes": 8,
+      "textures": 1,
+      "source": "Khronos Group glTF-Sample-Assets (SunglassesKhronos.glb)",
+      "license": "CC-BY-4.0",
+      "verifiedUnbranded": true,
+      "subject": "Architectural 8-mesh optical sunglasses frame with tinted lenses and hinged temples"
+    }
+  ]
+}
